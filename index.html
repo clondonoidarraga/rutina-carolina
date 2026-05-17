@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#E8D44D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Monk Mode">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Monk Mode — Carolina</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0a;--card:#141414;--card2:#1a1a1a;--border:#222;--accent:#E8D44D;--green:#4CAF50;--text:#ddd;--muted:#888;--dim:#555}
+body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh}.screen.active{display:block}
+.header-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+.btn-back{background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:8px 0}
+.header-name{color:#fff;font-weight:700;font-size:16px}
+.week-select{padding:0 20px 20px}
+.week-select label{color:var(--muted);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px}
+.week-btns{display:flex;gap:8px}
+.week-btn{flex:1;padding:10px 8px;border-radius:10px;border:none;cursor:pointer;font-size:13px;transition:all .2s;font-family:inherit}
+.week-btn.active{background:var(--accent);color:#000;font-weight:700}
+.week-btn:not(.active){background:var(--card);color:var(--muted)}
+.day-list{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px}
+.day-card{background:linear-gradient(135deg,var(--card),#1e1e1e);border:1px solid #2a2a2a;border-radius:14px;padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .2s}
+.day-card:active{border-color:var(--accent)}
+.day-icon{font-size:28px;min-width:40px;text-align:center}
+.day-label{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.day-title{color:var(--text);font-size:14px;font-weight:600}
+.day-loc{color:#666;font-size:12px;margin-top:2px}
+.arrow{color:var(--dim);font-size:20px;margin-left:auto}
+
+/* Progress photos card */
+.photo-card{background:linear-gradient(135deg,#1a1a2a,#1e1e2e);border:1px solid #2a2a3a;border-radius:14px;padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .2s;margin-top:20px}
+.photo-card:active{border-color:var(--accent)}
+
+.workout-header{background:linear-gradient(135deg,var(--card),var(--card2));padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.wh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.save-ind{color:var(--green);font-size:11px;font-weight:600;opacity:0;transition:opacity .3s}
+.save-ind.show{opacity:1}
+.wh-info{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.wh-icon{font-size:24px}.wh-day{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.wh-title{color:#fff;font-size:15px;font-weight:600}
+.progress-bar{display:flex;align-items:center;gap:10px}
+.progress-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s ease,background .3s}
+.progress-text{font-size:12px;font-weight:600;min-width:50px;text-align:right}
+.exercise-list{padding:16px 16px 120px}
+.section-title{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:20px 0 10px 4px}
+.section-title:first-child{margin-top:0}
+.ex-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:all .2s}
+.ex-card.done{background:linear-gradient(135deg,#1a2a1a,#1e2e1e);border-color:#2a4a2a}
+.ex-main{padding:12px 14px;display:flex;align-items:center;gap:12px}
+.ex-check{width:28px;height:28px;border-radius:8px;border:2px solid #444;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:14px;color:#fff;font-family:inherit}
+.ex-check.done{border-color:var(--green);background:var(--green)}
+.ex-name{color:var(--text);font-size:14px;font-weight:500}
+.ex-card.done .ex-name{color:#8a8;text-decoration:line-through;opacity:.7}
+.ex-meta{display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap}
+.ex-sets{color:var(--accent);font-size:11px;font-weight:600}
+.ex-rest{color:#666;font-size:11px}
+.ex-video{color:#FF4444;font-size:11px;text-decoration:none;font-weight:600;background:#2a1a1a;padding:2px 8px;border-radius:6px}
+.ex-inputs{padding:0 14px 12px;display:flex;gap:8px;align-items:center}
+.weight-wrap{display:flex;align-items:center;gap:6px;background:var(--bg);border-radius:8px;padding:6px 10px;flex:1}
+.weight-wrap span{color:#666;font-size:11px}
+.weight-wrap input{background:transparent;border:none;color:#fff;font-size:13px;width:100%;outline:none;font-family:inherit}
+.note-btn,.photo-btn{background:var(--bg);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px}
+.note-btn.has{background:#2a2a1a}.photo-btn.has{background:#1a2a2a}
+.note-area{padding:0 14px 12px}
+.note-area textarea{width:100%;background:var(--bg);border:1px solid #333;border-radius:8px;color:#ccc;font-size:12px;padding:8px 10px;resize:vertical;outline:none;font-family:inherit}
+.ex-photo-area{padding:0 14px 12px}
+.ex-photo-area img{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:6px}
+.ex-photo-area .photo-actions{display:flex;gap:8px}
+.ex-photo-area button{background:var(--bg);border:1px solid #333;border-radius:8px;padding:6px 12px;color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,var(--bg) 30%);display:flex;gap:10px;justify-content:center}
+.btn-done{background:var(--green);color:#fff;padding:10px 24px;border-radius:12px;font-weight:700;font-size:14px;border:none}
+.btn-reset{background:var(--card);border:1px solid #333;border-radius:12px;padding:10px 20px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+
+/* Progress Photos Screen */
+.photos-header{padding:20px;text-align:center}
+.photos-header h2{color:var(--accent);font-size:18px;margin-bottom:4px}
+.photos-header p{color:var(--muted);font-size:12px}
+.photo-grid{padding:0 16px 100px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photo-slot{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.photo-slot .slot-label{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+.photo-slot img{width:100%;height:180px;object-fit:cover}
+.photo-slot .add-photo{background:none;border:2px dashed #333;border-radius:10px;width:80%;padding:20px;cursor:pointer;color:var(--dim);font-size:28px}
+.photo-slot .del-photo{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.7);border:none;color:#f66;font-size:14px;border-radius:50%;width:28px;height:28px;cursor:pointer}
+input[type="file"]{display:none}
+
+/* Modal overlay for full photo */
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
+.modal img{max-width:100%;max-height:80vh;border-radius:8px}
+.modal .close{position:absolute;top:16px;right:16px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="screen-days" class="screen active">
+  <div class="header-bar">
+    <div class="header-name">👋 Carolina</div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="week-select">
+    <label>Semana</label>
+    <div class="week-btns" id="week-btns"></div>
+  </div>
+  <div class="day-list" id="day-list"></div>
+  <div style="padding:0 20px">
+    <div class="photo-card" onclick="goToPhotos()">
+      <div class="day-icon">📷</div>
+      <div style="flex:1">
+        <div class="day-label">Fotos de progreso</div>
+        <div class="day-title">Registra tu transformación</div>
+        <div class="day-loc">Frente, lateral, espalda</div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-workout" class="screen">
+  <div class="workout-header">
+    <div class="wh-top">
+      <button class="btn-back" onclick="goToDays()">← Días</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:#888;font-size:12px" id="wk-label"></span>
+        <span class="save-ind" id="save-ind">✓ Guardado</span>
+      </div>
+    </div>
+    <div class="wh-info">
+      <span class="wh-icon" id="wh-icon"></span>
+      <div>
+        <div class="wh-day" id="wh-day"></div>
+        <div class="wh-title" id="wh-title"></div>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+  </div>
+  <div class="exercise-list" id="exercise-list"></div>
+  <div class="bottom-bar" id="bottom-bar"></div>
+</div>
+
+<div id="screen-photos" class="screen">
+  <div class="header-bar">
+    <button class="btn-back" onclick="goToDays()">← Días</button>
+    <span style="color:#888;font-size:12px" id="photo-week-label"></span>
+  </div>
+  <div class="photos-header">
+    <h2>📷 Fotos de Progreso</h2>
+    <p>Toma fotos semanales para ver tu transformación</p>
+  </div>
+  <div class="photo-grid" id="photo-grid"></div>
+</div>
+
+<div class="modal" id="photo-modal" onclick="closeModal()">
+  <button class="close" onclick="closeModal()">✕</button>
+  <img id="modal-img" src="" />
+</div>
+
+<input type="file" id="cam-ex" accept="image/*" capture="environment" onchange="handleExPhoto(this)" />
+<input type="file" id="cam-progress" accept="image/*" capture="environment" onchange="handleProgressPhoto(this)" />
+
+<script>
+const ROUTINE = {"lunes": {"title": "Lower A — Cuádriceps + Glúteo", "icon": "🦵", "location": "SmartFit", "sections": [{"name": "Fuerza", "exercises": [{"id": "c-l-1", "name": "Prensa piernas (pies arriba y separados)", "sets": "4x10-12", "rest": "2 min", "video": "https://www.youtube.com/results?search_query=Prensa+piernas+(pies+arriba+y+separados)+ejercicio+tecnica"}, {"id": "c-l-2", "name": "Sentadilla en máquina Smith", "sets": "3x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Sentadilla+en+maquina+Smith+ejercicio+tecnica"}, {"id": "c-l-3", "name": "Extensión de cuádriceps en máquina", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Extension+de+cuadriceps+en+maquina+ejercicio+tecnica"}, {"id": "c-l-4", "name": "Hip thrust en máquina Smith", "sets": "4x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Hip+thrust+en+maquina+Smith+ejercicio+tecnica"}, {"id": "c-l-5", "name": "Abductor en máquina", "sets": "3x15-20", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Abductor+en+maquina+ejercicio+tecnica"}, {"id": "c-l-6", "name": "Elevación de pantorrillas en máquina", "sets": "3x15-20", "rest": "45 seg", "video": "https://www.youtube.com/results?search_query=Elevacion+de+pantorrillas+en+maquina+ejercicio+tecnica"}, {"id": "c-l-7", "name": "Crunch en máquina (core)", "sets": "3x15-20", "rest": "45 seg", "video": "https://www.youtube.com/results?search_query=Crunch+en+maquina+(core)+ejercicio+tecnica"}]}]}, "martes": {"title": "Upper A — Push", "icon": "💪", "location": "SmartFit", "sections": [{"name": "Fuerza", "exercises": [{"id": "c-m-1", "name": "Press de pecho en máquina", "sets": "3x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Press+de+pecho+en+maquina+ejercicio+tecnica"}, {"id": "c-m-2", "name": "Press de hombro en máquina", "sets": "3x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Press+de+hombro+en+maquina+ejercicio+tecnica"}, {"id": "c-m-3", "name": "Aperturas en máquina pec fly", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Aperturas+en+maquina+pec+fly+ejercicio+tecnica"}, {"id": "c-m-4", "name": "Elevación lateral en máquina", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Elevacion+lateral+en+maquina+ejercicio+tecnica"}, {"id": "c-m-5", "name": "Extensión de tríceps en polea", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Extension+de+triceps+en+polea+ejercicio+tecnica"}, {"id": "c-m-6", "name": "Press de tríceps en máquina", "sets": "2x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Press+de+triceps+en+maquina+ejercicio+tecnica"}, {"id": "c-m-7", "name": "Plancha en el suelo core", "sets": "3x30-45seg", "rest": "45 seg", "video": "https://www.youtube.com/results?search_query=Plancha+en+el+suelo+core+ejercicio+tecnica"}]}]}, "jueves": {"title": "Bicicleta 1 Hora", "icon": "🚴", "location": "Aire libre", "sections": [{"name": "Cardio", "exercises": [{"id": "c-j-1", "name": "Bicicleta con Anderson", "sets": "1 hora", "rest": "—", "video": "https://www.youtube.com/results?search_query=Bicicleta+con+Anderson+ejercicio+tecnica"}]}]}, "viernes": {"title": "Glúteo + Core + HIIT", "icon": "🔥", "location": "SmartFit", "sections": [{"name": "Circuito HIIT 30 seg", "exercises": [{"id": "c-v-1", "name": "Thrusters", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Thrusters+ejercicio+tecnica"}, {"id": "c-v-2", "name": "Sentadilla sumo con pulsaciones", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Sentadilla+sumo+con+pulsaciones+ejercicio+tecnica"}, {"id": "c-v-3", "name": "Butt Kicks", "sets": "30 seg c/lado", "rest": "—", "video": "https://www.youtube.com/results?search_query=Butt+Kicks+ejercicio+tecnica"}, {"id": "c-v-4", "name": "Encogimiento rodillas en banco", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Encogimiento+rodillas+en+banco+ejercicio+tecnica"}, {"id": "c-v-5", "name": "Plancha", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Plancha+ejercicio+tecnica"}, {"id": "c-v-6", "name": "Scissors", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Scissors+ejercicio+tecnica"}, {"id": "c-v-7", "name": "Crunch en máquina", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+en+maquina+ejercicio+tecnica"}, {"id": "c-v-8", "name": "Elevación piernas colgado", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Elevacion+piernas+colgado+ejercicio+tecnica"}, {"id": "c-v-9", "name": "Crunch lateral cuerda en polea", "sets": "30 seg c/lado", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+lateral+cuerda+en+polea+ejercicio+tecnica"}]}, {"name": "Bloque Glúteo", "exercises": [{"id": "c-v-10", "name": "Hip Thrust en Smith", "sets": "4x12-15", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Hip+Thrust+en+Smith+ejercicio+tecnica"}, {"id": "c-v-11", "name": "Abductor en máquina", "sets": "4x15-20", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Abductor+en+maquina+ejercicio+tecnica"}, {"id": "c-v-12", "name": "Prensa piernas pies muy arriba", "sets": "3x12-15", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Prensa+piernas+pies+muy+arriba+ejercicio+tecnica"}, {"id": "c-v-13", "name": "Patada glúteo máquina kickback", "sets": "3x12-15 c/pierna", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Patada+gluteo+maquina+kickback+ejercicio+tecnica"}, {"id": "c-v-14", "name": "Aductor en máquina", "sets": "3x15-20", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Aductor+en+maquina+ejercicio+tecnica"}]}, {"name": "Cardio", "exercises": [{"id": "c-v-15", "name": "Elíptica post-entreno", "sets": "20 min", "rest": "—", "video": "https://www.youtube.com/results?search_query=Eliptica+post-entreno+ejercicio+tecnica"}]}]}, "sabado": {"title": "HIIT & Core", "icon": "⚡", "location": "SmartFit", "sections": [{"name": "Circuito HIIT Core 30 seg", "exercises": [{"id": "c-s-1", "name": "Thrusters sentadilla press hombro", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Thrusters+sentadilla+press+hombro+ejercicio+tecnica"}, {"id": "c-s-2", "name": "Crunch lateral cuerda en polea", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+lateral+cuerda+en+polea+ejercicio+tecnica"}, {"id": "c-s-3", "name": "Sentadilla sumo con pulsaciones", "sets": "30 seg c/lado", "rest": "—", "video": "https://www.youtube.com/results?search_query=Sentadilla+sumo+con+pulsaciones+ejercicio+tecnica"}, {"id": "c-s-4", "name": "Encogimiento rodillas banco", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Encogimiento+rodillas+banco+ejercicio+tecnica"}, {"id": "c-s-5", "name": "Scissors", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Scissors+ejercicio+tecnica"}, {"id": "c-s-6", "name": "Plancha", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Plancha+ejercicio+tecnica"}, {"id": "c-s-7", "name": "Crunch en máquina", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+en+maquina+ejercicio+tecnica"}, {"id": "c-s-8", "name": "Russian Twists", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Russian+Twists+ejercicio+tecnica"}, {"id": "c-s-9", "name": "Hollow Hold", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Hollow+Hold+ejercicio+tecnica"}]}, {"name": "Cardio", "exercises": [{"id": "c-s-10", "name": "Cardio segun porcentaje grasa", "sets": "Según tabla", "rest": "—", "video": "https://www.youtube.com/results?search_query=Cardio+segun+porcentaje+grasa+ejercicio+tecnica"}]}]}};
+const DAY_LABELS = {lunes:"Lunes",martes:"Martes",miercoles:"Miércoles",jueves:"Jueves",viernes:"Viernes",sabado:"Sábado"};
+const WEEKS = ["Semana 1","Semana 2","Semana 3","Semana 4"];
+const PHOTO_SLOTS = ["Frente","Lateral Izq","Lateral Der","Espalda"];
+let currentWeek="Semana 1",currentDay=null,exerciseData={},openNote=null,openPhoto=null,pendingPhotoId=null,pendingSlot=null;
+
+function sKey(w,d){return `mm_carolina_${w}_${d}`}
+function pKey(w,slot){return `mm_carolina_photo_${w}_${slot}`}
+function loadPrefs(){try{const p=JSON.parse(localStorage.getItem("mm_prefs_carolina"));if(p&&p.week)currentWeek=p.week}catch{}}
+function savePrefs(){localStorage.setItem("mm_prefs_carolina",JSON.stringify({week:currentWeek}))}
+function loadEx(){if(!currentDay){exerciseData={};return}try{exerciseData=JSON.parse(localStorage.getItem(sKey(currentWeek,currentDay)))||{}}catch{exerciseData={}}}
+function saveEx(){if(!currentDay)return;localStorage.setItem(sKey(currentWeek,currentDay),JSON.stringify(exerciseData));showSaved()}
+function showSaved(){const el=document.getElementById("save-ind");if(el){el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1200)}}
+
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function goToDays(){currentDay=null;openNote=null;openPhoto=null;renderDays();showScreen("screen-days")}
+function selectDay(d){currentDay=d;openNote=null;openPhoto=null;loadEx();renderWorkout();showScreen("screen-workout")}
+function selectWeek(w){currentWeek=w;savePrefs();if(currentDay){loadEx();renderWorkout()}renderDays()}
+
+function resizeImg(file,maxW,cb){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement("canvas");
+      let w=img.width,h=img.height;
+      if(w>maxW){h=h*(maxW/w);w=maxW}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      cb(canvas.toDataURL("image/jpeg",0.7));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Exercise photos
+function takeExPhoto(id){pendingPhotoId=id;document.getElementById("cam-ex").click()}
+function handleExPhoto(input){
+  if(!input.files[0]||!pendingPhotoId)return;
+  resizeImg(input.files[0],400,function(data){
+    if(!exerciseData[pendingPhotoId])exerciseData[pendingPhotoId]={};
+    exerciseData[pendingPhotoId].photo=data;
+    saveEx();renderWorkout();
+  });
+  input.value="";
+}
+function deleteExPhoto(id){
+  if(exerciseData[id])delete exerciseData[id].photo;
+  saveEx();renderWorkout();
+}
+
+// Progress photos
+function goToPhotos(){
+  document.getElementById("photo-week-label").textContent=currentWeek;
+  renderPhotos();showScreen("screen-photos");
+}
+function takeProgressPhoto(slot){pendingSlot=slot;document.getElementById("cam-progress").click()}
+function handleProgressPhoto(input){
+  if(!input.files[0]||pendingSlot===null)return;
+  resizeImg(input.files[0],600,function(data){
+    localStorage.setItem(pKey(currentWeek,pendingSlot),data);
+    renderPhotos();
+  });
+  input.value="";
+}
+function deleteProgressPhoto(slot){
+  if(!confirm("¿Borrar esta foto?"))return;
+  localStorage.removeItem(pKey(currentWeek,slot));
+  renderPhotos();
+}
+function openModal(src){document.getElementById("modal-img").src=src;document.getElementById("photo-modal").classList.add("active")}
+function closeModal(){document.getElementById("photo-modal").classList.remove("active")}
+
+function renderDays(){
+  document.getElementById("week-btns").innerHTML=WEEKS.map(w=>`<button class="week-btn ${w===currentWeek?'active':''}" onclick="selectWeek('${w}')">${w.replace('Semana ','Sem ')}</button>`).join('');
+  document.getElementById("day-list").innerHTML=Object.entries(ROUTINE).map(([k,d])=>`<div class="day-card" onclick="selectDay('${k}')"><div class="day-icon">${d.icon}</div><div style="flex:1"><div class="day-label">${DAY_LABELS[k]}</div><div class="day-title">${d.title}</div><div class="day-loc">📍 ${d.location}</div></div><div class="arrow">›</div></div>`).join('');
+}
+
+function renderWorkout(){
+  const day=ROUTINE[currentDay];if(!day)return;
+  document.getElementById("wk-label").textContent=currentWeek;
+  document.getElementById("wh-icon").textContent=day.icon;
+  document.getElementById("wh-day").textContent=DAY_LABELS[currentDay];
+  document.getElementById("wh-title").textContent=day.title;
+  const allEx=day.sections.flatMap(s=>s.exercises);
+  const done=allEx.filter(e=>exerciseData[e.id]?.done).length;
+  const total=allEx.length;const pct=total>0?(done/total)*100:0;const complete=pct===100;
+  document.getElementById("progress-fill").style.width=pct+"%";
+  document.getElementById("progress-fill").style.background=complete?"var(--green)":"var(--accent)";
+  document.getElementById("progress-text").textContent=`${done}/${total}`;
+  document.getElementById("progress-text").style.color=complete?"var(--green)":"var(--muted)";
+  let h='';
+  day.sections.forEach(sec=>{
+    h+=`<div class="section-title">${sec.name}</div>`;
+    sec.exercises.forEach(ex=>{
+      const d=exerciseData[ex.id]||{};const dn=!!d.done;const no=openNote===ex.id;const po=openPhoto===ex.id;
+      h+=`<div class="ex-card ${dn?'done':''}">
+        <div class="ex-main">
+          <button class="ex-check ${dn?'done':''}" onclick="toggleDone('${ex.id}')">${dn?'✓':''}</button>
+          <div style="flex:1;min-width:0">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-meta">
+              <span class="ex-sets">${ex.sets}</span>
+              <span class="ex-rest">⏱ ${ex.rest}</span>
+              <a href="${ex.video}" target="_blank" class="ex-video" onclick="event.stopPropagation()">▶ Video</a>
+            </div>
+          </div>
+        </div>
+        <div class="ex-inputs">
+          <div class="weight-wrap"><span>⚖️</span><input type="number" inputmode="decimal" placeholder="Peso (kg)" value="${d.weight||''}" onchange="setWeight('${ex.id}',this.value)"/></div>
+          <button class="photo-btn ${d.photo?'has':''}" onclick="${d.photo?`togglePhoto('${ex.id}')`:`takeExPhoto('${ex.id}')`}">📷</button>
+          <button class="note-btn ${d.note?'has':''}" onclick="toggleNote('${ex.id}')">📝</button>
+        </div>
+        ${po&&d.photo?`<div class="ex-photo-area"><img src="${d.photo}" onclick="openModal('${d.photo}')" /><div class="photo-actions"><button onclick="takeExPhoto('${ex.id}')">📷 Cambiar</button><button onclick="deleteExPhoto('${ex.id}')">🗑 Borrar</button></div></div>`:''}        ${no?`<div class="note-area"><textarea rows="2" placeholder="Notas..." onchange="setNote('${ex.id}',this.value)">${d.note||''}</textarea></div>`:''}
+      </div>`;
+    });
+  });
+  document.getElementById("exercise-list").innerHTML=h;
+  document.getElementById("bottom-bar").innerHTML=`${complete?'<div class="btn-done">✅ ¡Entrenamiento completado!</div>':''}<button class="btn-reset" onclick="resetDay()">🗑 Reiniciar día</button>`;
+}
+
+function renderPhotos(){
+  const grid=document.getElementById("photo-grid");
+  grid.innerHTML=PHOTO_SLOTS.map((slot,i)=>{
+    const data=localStorage.getItem(pKey(currentWeek,i));
+    if(data)return `<div class="photo-slot"><div class="slot-label">${slot}</div><img src="${data}" onclick="openModal('${data}')" /><button class="del-photo" onclick="deleteProgressPhoto(${i})">✕</button></div>`;
+    return `<div class="photo-slot"><div class="slot-label">${slot}</div><button class="add-photo" onclick="takeProgressPhoto(${i})">📷</button></div>`;
+  }).join('');
+}
+
+function toggleDone(id){if(!exerciseData[id])exerciseData[id]={};exerciseData[id].done=!exerciseData[id].done;saveEx();renderWorkout()}
+function setWeight(id,v){if(!exerciseData[id])exerciseData[id]={};exerciseData[id].weight=v;saveEx()}
+function setNote(id,v){if(!exerciseData[id])exerciseData[id]={};exerciseData[id].note=v;saveEx()}
+function toggleNote(id){openNote=openNote===id?null:id;openPhoto=null;renderWorkout()}
+function togglePhoto(id){openPhoto=openPhoto===id?null:id;openNote=null;renderWorkout()}
+function resetDay(){if(!confirm("¿Borrar todos los datos de este día?"))return;exerciseData={};localStorage.removeItem(sKey(currentWeek,currentDay));renderWorkout()}
+
+loadPrefs();renderDays();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
