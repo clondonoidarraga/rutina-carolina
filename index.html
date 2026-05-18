@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#E8D44D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Monk Mode">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Monk Mode — Carolina</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0a;--card:#141414;--card2:#1a1a1a;--border:#222;--accent:#E8D44D;--green:#4CAF50;--text:#ddd;--muted:#888;--dim:#555}
+body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh}.screen.active{display:block}
+.header-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+.btn-back{background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:8px 0}
+.header-name{color:#fff;font-weight:700;font-size:16px}
+.week-select{padding:0 20px 20px}
+.week-select label{color:var(--muted);font-size:12px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px}
+.week-btns{display:flex;gap:8px}
+.week-btn{flex:1;padding:10px 8px;border-radius:10px;border:none;cursor:pointer;font-size:13px;transition:all .2s;font-family:inherit}
+.week-btn.active{background:var(--accent);color:#000;font-weight:700}
+.week-btn:not(.active){background:var(--card);color:var(--muted)}
+.day-list{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px}
+.day-card{background:linear-gradient(135deg,var(--card),#1e1e1e);border:1px solid #2a2a2a;border-radius:14px;padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .2s}
+.day-card:active{border-color:var(--accent)}
+.day-icon{font-size:28px;min-width:40px;text-align:center}
+.day-label{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.day-title{color:var(--text);font-size:14px;font-weight:600}
+.day-loc{color:#666;font-size:12px;margin-top:2px}
+.arrow{color:var(--dim);font-size:20px;margin-left:auto}
+
+/* Progress photos card */
+.photo-card{background:linear-gradient(135deg,#1a1a2a,#1e1e2e);border:1px solid #2a2a3a;border-radius:14px;padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .2s;margin-top:20px}
+.photo-card:active{border-color:var(--accent)}
+
+.workout-header{background:linear-gradient(135deg,var(--card),var(--card2));padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.wh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.save-ind{color:var(--green);font-size:11px;font-weight:600;opacity:0;transition:opacity .3s}
+.save-ind.show{opacity:1}
+.wh-info{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.wh-icon{font-size:24px}.wh-day{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.wh-title{color:#fff;font-size:15px;font-weight:600}
+.progress-bar{display:flex;align-items:center;gap:10px}
+.progress-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s ease,background .3s}
+.progress-text{font-size:12px;font-weight:600;min-width:50px;text-align:right}
+.exercise-list{padding:16px 16px 120px}
+.section-title{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:20px 0 10px 4px}
+.section-title:first-child{margin-top:0}
+.ex-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:all .2s}
+.ex-card.done{background:linear-gradient(135deg,#1a2a1a,#1e2e1e);border-color:#2a4a2a}
+.ex-main{padding:12px 14px;display:flex;align-items:center;gap:12px}
+.ex-check{width:28px;height:28px;border-radius:8px;border:2px solid #444;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:14px;color:#fff;font-family:inherit}
+.ex-check.done{border-color:var(--green);background:var(--green)}
+.ex-name{color:var(--text);font-size:14px;font-weight:500}
+.ex-card.done .ex-name{color:#8a8;text-decoration:line-through;opacity:.7}
+.ex-meta{display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap}
+.ex-sets{color:var(--accent);font-size:11px;font-weight:600}
+.ex-rest{color:#666;font-size:11px}
+.ex-video{color:#FF4444;font-size:11px;text-decoration:none;font-weight:600;background:#2a1a1a;padding:2px 8px;border-radius:6px}
+.ex-inputs{padding:0 14px 12px;display:flex;gap:8px;align-items:center}
+.weight-wrap{display:flex;align-items:center;gap:6px;background:var(--bg);border-radius:8px;padding:6px 10px;flex:1}
+.weight-wrap span{color:#666;font-size:11px}
+.weight-wrap input{background:transparent;border:none;color:#fff;font-size:13px;width:100%;outline:none;font-family:inherit}
+.note-btn,.photo-btn{background:var(--bg);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px}
+.note-btn.has{background:#2a2a1a}.photo-btn.has{background:#1a2a2a}
+.note-area{padding:0 14px 12px}
+.note-area textarea{width:100%;background:var(--bg);border:1px solid #333;border-radius:8px;color:#ccc;font-size:12px;padding:8px 10px;resize:vertical;outline:none;font-family:inherit}
+.ex-photo-area{padding:0 14px 12px}
+.ex-photo-area img{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:6px}
+.ex-photo-area .photo-actions{display:flex;gap:8px}
+.ex-photo-area button{background:var(--bg);border:1px solid #333;border-radius:8px;padding:6px 12px;color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,var(--bg) 30%);display:flex;gap:10px;justify-content:center}
+.btn-done{background:var(--green);color:#fff;padding:10px 24px;border-radius:12px;font-weight:700;font-size:14px;border:none}
+.btn-reset{background:var(--card);border:1px solid #333;border-radius:12px;padding:10px 20px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+
+/* Progress Photos Screen */
+.photos-header{padding:20px;text-align:center}
+.photos-header h2{color:var(--accent);font-size:18px;margin-bottom:4px}
+.photos-header p{color:var(--muted);font-size:12px}
+.photo-grid{padding:0 16px 100px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photo-slot{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.photo-slot .slot-label{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+.photo-slot img{width:100%;height:180px;object-fit:cover}
+.photo-slot .add-photo{background:none;border:2px dashed #333;border-radius:10px;width:80%;padding:20px;cursor:pointer;color:var(--dim);font-size:28px}
+.photo-slot .del-photo{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.7);border:none;color:#f66;font-size:14px;border-radius:50%;width:28px;height:28px;cursor:pointer}
+input[type="file"]{display:none}
+
+/* Modal overlay for full photo */
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
+.modal img{max-width:100%;max-height:80vh;border-radius:8px}
+.modal .close{position:absolute;top:16px;right:16px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="screen-days" class="screen active">
+  <div class="header-bar">
+    <div class="header-name">👋 Carolina</div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="week-select">
+    <label>Semana</label>
+    <div class="week-btns" id="week-btns"></div>
+  </div>
+  <div class="day-list" id="day-list"></div>
+  <div style="padding:0 20px">
+    <div class="photo-card" onclick="goToPhotos()">
+      <div class="day-icon">📷</div>
+      <div style="flex:1">
+        <div class="day-label">Fotos de progreso</div>
+        <div class="day-title">Registra tu transformación</div>
+        <div class="day-loc">Frente, lateral, espalda</div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="photo-card" style="margin-top:10px;background:linear-gradient(135deg,#2a1a2a,#2e1e2e);border-color:#3a2a3a" onclick="goToNutrition()">
+      <div class="day-icon">🥗</div>
+      <div style="flex:1">
+        <div class="day-label">Guía Nutricional</div>
+        <div class="day-title">Plan vegetariano + quema calórica</div>
+        <div class="day-loc">Macros, menú, calorías por ejercicio</div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-workout" class="screen">
+  <div class="workout-header">
+    <div class="wh-top">
+      <button class="btn-back" onclick="goToDays()">← Días</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:#888;font-size:12px" id="wk-label"></span>
+        <span class="save-ind" id="save-ind">✓ Guardado</span>
+      </div>
+    </div>
+    <div class="wh-info">
+      <span class="wh-icon" id="wh-icon"></span>
+      <div>
+        <div class="wh-day" id="wh-day"></div>
+        <div class="wh-title" id="wh-title"></div>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+  </div>
+  <div class="exercise-list" id="exercise-list"></div>
+  <div class="bottom-bar" id="bottom-bar"></div>
+</div>
+
+<div id="screen-photos" class="screen">
+  <div class="header-bar">
+    <button class="btn-back" onclick="goToDays()">← Días</button>
+    <span style="color:#888;font-size:12px" id="photo-week-label"></span>
+  </div>
+  <div class="photos-header">
+    <h2>📷 Fotos de Progreso</h2>
+    <p>Toma fotos semanales para ver tu transformación</p>
+  </div>
+  <div class="photo-grid" id="photo-grid"></div>
+</div>
+
+<div id="screen-nutrition" class="screen">
+  <div class="header-bar">
+    <button class="btn-back" onclick="goToDays()">← Inicio</button>
+    <div></div>
+  </div>
+  <div style="padding:0 20px 60px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:40px;margin-bottom:8px">🥗</div>
+      <h2 style="color:var(--accent);font-size:20px;margin-bottom:4px">Guía Nutricional Vegetariana</h2>
+      <p style="color:var(--muted);font-size:12px">Plan para mover la balanza — Déficit inteligente</p>
+      <p style="color:var(--dim);font-size:11px;margin-top:4px">67.5 kg • Vegetariana • 5 días/semana</p>
+    </div>
+
+    <!-- MACROS -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">📊 TUS MACROS DIARIOS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:var(--accent);font-size:22px;font-weight:800">1,750</div>
+          <div style="color:var(--muted);font-size:11px">kcal / día</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:#FF6B9D;font-size:22px;font-weight:800">130g</div>
+          <div style="color:var(--muted);font-size:11px">proteína</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:#FFD93D;font-size:22px;font-weight:800">185g</div>
+          <div style="color:var(--muted);font-size:11px">carbohidratos</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:#6BCB77;font-size:22px;font-weight:800">50g</div>
+          <div style="color:var(--muted);font-size:11px">grasas</div>
+        </div>
+      </div>
+      <div style="color:var(--dim);font-size:11px;margin-top:10px;text-align:center">Déficit de ~400 kcal para perder ~0.5 kg/semana real en la balanza</div>
+    </div>
+
+    <!-- REGLA DE ORO -->
+    <div style="background:linear-gradient(135deg,#2a2a1a,#1e1e1a);border:1px solid #3a3a2a;border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:#FFD93D;font-size:13px;font-weight:700;margin-bottom:8px">⚡ PARA MOVER LA BALANZA</div>
+      <div style="color:var(--text);font-size:13px;line-height:1.6">La clave es el <strong>déficit calórico sostenido</strong>. Con 1,750 kcal + tu nivel de entrenamiento (5 días), quemas ~2,100-2,200 kcal diarias. Eso son ~400 kcal de déficit = <strong style="color:#FF6B9D">~0.5 kg por semana</strong>. En un mes puedes bajar 2 kg reales (grasa, no agua). Proteína a 130g para proteger tu músculo.</div>
+    </div>
+
+    <!-- MEJORES PROTEINAS VEGETARIANAS -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🥇 TUS MEJORES FUENTES DE PROTEÍNA</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🥛</span> <span style="color:var(--text);font-size:13px;font-weight:600">Whey Protein</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">25-30g / scoop</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🥚</span> <span style="color:var(--text);font-size:13px;font-weight:600">Huevos (3-4/día)</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">6g / unidad</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🥣</span> <span style="color:var(--text);font-size:13px;font-weight:600">Yogur griego</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">15-20g / vaso</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🫘</span> <span style="color:var(--text);font-size:13px;font-weight:600">Lentejas cocidas</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">18g / taza</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🧀</span> <span style="color:var(--text);font-size:13px;font-weight:600">Queso cottage</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">14g / 100g</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🫧</span> <span style="color:var(--text);font-size:13px;font-weight:600">Tofu firme</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">17g / 100g</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🌾</span> <span style="color:var(--text);font-size:13px;font-weight:600">Quinoa cocida</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">8g / taza</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EJEMPLO MENU -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🍽️ MENÚ DÍA DE ENTRENAMIENTO</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="border-left:3px solid #FFD93D;padding-left:12px">
+          <div style="color:#FFD93D;font-size:11px;font-weight:700">6:00 AM — PRE-GYM</div>
+          <div style="color:var(--text);font-size:13px">Banano + café negro</div>
+          <div style="color:var(--muted);font-size:11px">~100 kcal • energía rápida</div>
+        </div>
+        <div style="border-left:3px solid #FF6B9D;padding-left:12px">
+          <div style="color:#FF6B9D;font-size:11px;font-weight:700">8:00 AM — DESAYUNO POST-GYM</div>
+          <div style="color:var(--text);font-size:13px">3 huevos revueltos + arepa + batido whey con leche</div>
+          <div style="color:var(--muted);font-size:11px">~45g proteína • ~500 kcal</div>
+        </div>
+        <div style="border-left:3px solid #6BCB77;padding-left:12px">
+          <div style="color:#6BCB77;font-size:11px;font-weight:700">11:00 AM — MEDIA MAÑANA</div>
+          <div style="color:var(--text);font-size:13px">Yogur griego + puñado de nueces + fruta</div>
+          <div style="color:var(--muted);font-size:11px">~20g proteína • ~250 kcal</div>
+        </div>
+        <div style="border-left:3px solid var(--accent);padding-left:12px">
+          <div style="color:var(--accent);font-size:11px;font-weight:700">1:00 PM — ALMUERZO</div>
+          <div style="color:var(--text);font-size:13px">Lentejas + arroz integral + ensalada grande + medio aguacate</div>
+          <div style="color:var(--muted);font-size:11px">~30g proteína • ~500 kcal</div>
+        </div>
+        <div style="border-left:3px solid #C49BFF;padding-left:12px">
+          <div style="color:#C49BFF;font-size:11px;font-weight:700">4:00 PM — MERIENDA</div>
+          <div style="color:var(--text);font-size:13px">Tostadas integrales con queso cottage + tomate</div>
+          <div style="color:var(--muted);font-size:11px">~15g proteína • ~200 kcal</div>
+        </div>
+        <div style="border-left:3px solid #FF9A3C;padding-left:12px">
+          <div style="color:#FF9A3C;font-size:11px;font-weight:700">7:00 PM — CENA</div>
+          <div style="color:var(--text);font-size:13px">Tofu salteado con vegetales + quinoa</div>
+          <div style="color:var(--muted);font-size:11px">~22g proteína • ~300 kcal</div>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;margin-top:12px;text-align:center">
+        <span style="color:#FF6B9D;font-weight:700">~132g proteína</span> <span style="color:var(--dim)">•</span> <span style="color:var(--accent);font-weight:700">~1,750 kcal</span>
+      </div>
+    </div>
+
+    <!-- MENU DIA DESCANSO -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🍽️ MENÚ DÍA DE DESCANSO</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="border-left:3px solid #FFD93D;padding-left:12px">
+          <div style="color:#FFD93D;font-size:11px;font-weight:700">DESAYUNO</div>
+          <div style="color:var(--text);font-size:13px">Avena con leche + whey + fruta picada</div>
+          <div style="color:var(--muted);font-size:11px">~35g proteína • ~400 kcal</div>
+        </div>
+        <div style="border-left:3px solid #6BCB77;padding-left:12px">
+          <div style="color:#6BCB77;font-size:11px;font-weight:700">MEDIA MAÑANA</div>
+          <div style="color:var(--text);font-size:13px">2 huevos duros + fruta</div>
+          <div style="color:var(--muted);font-size:11px">~12g proteína • ~180 kcal</div>
+        </div>
+        <div style="border-left:3px solid var(--accent);padding-left:12px">
+          <div style="color:var(--accent);font-size:11px;font-weight:700">ALMUERZO</div>
+          <div style="color:var(--text);font-size:13px">Frijoles + arroz + ensalada + aguacate</div>
+          <div style="color:var(--muted);font-size:11px">~25g proteína • ~450 kcal</div>
+        </div>
+        <div style="border-left:3px solid #C49BFF;padding-left:12px">
+          <div style="color:#C49BFF;font-size:11px;font-weight:700">MERIENDA</div>
+          <div style="color:var(--text);font-size:13px">Yogur griego + granola</div>
+          <div style="color:var(--muted);font-size:11px">~18g proteína • ~220 kcal</div>
+        </div>
+        <div style="border-left:3px solid #FF9A3C;padding-left:12px">
+          <div style="color:#FF9A3C;font-size:11px;font-weight:700">CENA</div>
+          <div style="color:var(--text);font-size:13px">Tortilla de 3 huevos con champiñones y espinaca</div>
+          <div style="color:var(--muted);font-size:11px">~22g proteína • ~300 kcal</div>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;margin-top:12px;text-align:center">
+        <span style="color:#FF6B9D;font-weight:700">~112g proteína</span> <span style="color:var(--dim)">•</span> <span style="color:var(--accent);font-weight:700">~1,550 kcal</span>
+      </div>
+    </div>
+
+    <!-- CALORIAS POR DIA -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🔥 CALORÍAS QUE QUEMAS POR DÍA</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">🦵</span> <span style="color:var(--text);font-size:13px;font-weight:600">Lunes — Lower A</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~320 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Prensa ~45 • Smith ~40 • Ext cuád ~25 • Hip thrust ~45 • Abductor ~20 • Pantorrillas ~15 • Crunch ~15 • EPOC* ~115</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">💪</span> <span style="color:var(--text);font-size:13px;font-weight:600">Martes — Upper A</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~260 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Press pecho ~30 • Press hombro ~30 • Pec fly ~20 • Lateral ~15 • Tríceps ~20 • Plancha ~15 • EPOC* ~100</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">🚴</span> <span style="color:var(--text);font-size:13px;font-weight:600">Jueves — Bici 1h</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~400 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Ritmo moderado constante 1 hora. El cardio más largo de la semana.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">🔥</span> <span style="color:var(--text);font-size:13px;font-weight:600">Viernes — Glúteo + HIIT</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~520 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">HIIT circuit ~180 • Bloque glúteo ~160 • Elíptica 20min ~140 • EPOC* extra por HIIT</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">⚡</span> <span style="color:var(--text);font-size:13px;font-weight:600">Sábado — HIIT & Core</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~380 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Circuito HIIT ~200 + Cardio según tabla ~180. Día más intenso en frecuencia cardíaca.</div>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#2a1a2a,#1e1e2e);border-radius:10px;padding:14px;margin-top:12px;text-align:center">
+        <div style="color:var(--accent);font-size:18px;font-weight:800">~1,880 kcal/semana</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:2px">Total quemado solo en ejercicio (sin contar metabolismo basal)</div>
+      </div>
+      <div style="color:var(--dim);font-size:10px;margin-top:8px">*EPOC = calorías extra que sigues quemando después de entrenar (efecto post-combustión). Dura 24-48h después de fuerza e HIIT.</div>
+    </div>
+
+    <!-- BALANCE SEMANAL -->
+    <div style="background:linear-gradient(135deg,#1a2a1a,#1e2e1e);border:1px solid #2a4a2a;border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">📉 TU BALANCE SEMANAL</div>
+      <div style="display:flex;flex-direction:column;gap:6px;color:var(--text);font-size:13px">
+        <div style="display:flex;justify-content:space-between"><span>Gasto basal (7 días)</span><span style="color:var(--green)">~9,800 kcal</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Gasto por ejercicio (5 días)</span><span style="color:var(--green)">~1,880 kcal</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Actividad diaria (NEAT)</span><span style="color:var(--green)">~1,400 kcal</span></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #2a4a2a;padding-top:6px"><span style="font-weight:700">Gasto total semanal</span><span style="color:var(--green);font-weight:700">~13,080 kcal</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Consumo (1,750 x 5 días + 1,550 x 2)</span><span style="color:#FF6B9D">~11,850 kcal</span></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #2a4a2a;padding-top:6px"><span style="font-weight:700">Déficit semanal</span><span style="color:var(--accent);font-weight:800">~1,230 kcal</span></div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;margin-top:10px;text-align:center">
+        <div style="color:var(--accent);font-size:16px;font-weight:800">≈ 0.35 kg de grasa por semana</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:2px">~1.4 kg por mes • ~4.2 kg en 3 meses</div>
+      </div>
+    </div>
+
+    <!-- QUE EVITAR -->
+    <div style="background:linear-gradient(135deg,#2a1a1a,#1e1414);border:1px solid #3a2a2a;border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:#FF6B6B;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🚫 EVITAR O REDUCIR</div>
+      <div style="display:flex;flex-direction:column;gap:8px;color:var(--text);font-size:13px;line-height:1.5">
+        <div>🥤 <strong>Gaseosas y jugos</strong> — calorías líquidas que no sacian. Un jugo = 150 kcal que no sientes.</div>
+        <div>🍞 <strong>Pan blanco y panadería</strong> — harinas refinadas que disparan insulina. Integral siempre.</div>
+        <div>🍟 <strong>Fritos</strong> — los patacones, empanadas y buñuelos triplican las calorías.</div>
+        <div>🍫 <strong>Snacks de paquete</strong> — papas, galletas, chocolates. Densidad calórica altísima.</div>
+        <div>🧈 <strong>Exceso de queso y mantequilla</strong> — el queso es proteína pero también mucha grasa. Preferir cottage o ricotta.</div>
+        <div>🍺 <strong>Alcohol</strong> — detiene la quema de grasa por completo mientras lo procesa tu cuerpo.</div>
+        <div>🍚 <strong>Porciones enormes de arroz</strong> — 1 taza cocida es suficiente. El arroz no es malo, la porción sí.</div>
+      </div>
+    </div>
+
+    <!-- TIPS -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">💡 TIPS PARA MOVER LA BALANZA</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Pesarte siempre igual</div><div style="color:var(--muted);font-size:12px">En ayunas, después de ir al baño, sin ropa. Mismo día cada semana (ej: lunes). NO diario — el peso fluctúa 1-2 kg por agua y digestión.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Whey es tu mejor aliado</div><div style="color:var(--muted);font-size:12px">2 scoops al día: uno post-gym y otro en merienda. Son 50-60g de proteína resueltos con pocas calorías (~240 kcal). Sin whey es muy difícil llegar a 130g siendo vegetariana.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Comer más los días de entreno</div><div style="color:var(--muted);font-size:12px">1,750 kcal días de gym, 1,550 kcal días de descanso. El cuerpo necesita combustible para rendir y recuperarse.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Vegetales = volumen gratis</div><div style="color:var(--muted);font-size:12px">Un plato enorme de ensalada con brócoli, espinaca, tomate y pepino tiene ~50 kcal. Te llena sin sumar. Agrégalos a todo.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Agua antes de cada comida</div><div style="color:var(--muted);font-size:12px">Un vaso grande 20 min antes de comer. Reduce el hambre y mejora la digestión. Mínimo 2.5L al día.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div style="background:linear-gradient(135deg,#2a1a2a,#2e1e2e);border:1px solid #3a2a3a;border-radius:14px;padding:16px;text-align:center">
+      <div style="color:var(--accent);font-size:13px;font-weight:700;margin-bottom:6px">📅 QUÉ ESPERAR EN LA BALANZA</div>
+      <div style="color:var(--text);font-size:13px;line-height:1.6">Semana 1-2: puedes bajar 1-2 kg rápido (agua + desinflamación). Semana 3-4: ~0.3-0.5 kg/semana real. Mes 2-3: la ropa cambia de talla. <strong>Si una semana no baja, NO te asustes</strong> — el ciclo menstrual puede causar retención de 1-2 kg de agua que desaparecen después. Confía en el promedio mensual, no en el número diario.</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="photo-modal" onclick="closeModal()">
+  <button class="close" onclick="closeModal()">✕</button>
+  <img id="modal-img" src="" />
+</div>
+
+<input type="file" id="cam-ex" accept="image/*" capture="environment" onchange="handleExPhoto(this)" />
+<input type="file" id="cam-progress" accept="image/*" capture="environment" onchange="handleProgressPhoto(this)" />
+
+<script>
+const ROUTINE = {"lunes": {"title": "Lower A — Cuádriceps + Glúteo", "icon": "🦵", "location": "SmartFit", "sections": [{"name": "Fuerza", "exercises": [{"id": "c-l-1", "name": "Prensa piernas (pies arriba y separados)", "sets": "4x10-12", "rest": "2 min", "video": "https://www.youtube.com/results?search_query=Prensa+piernas+(pies+arriba+y+separados)+ejercicio+tecnica"}, {"id": "c-l-2", "name": "Sentadilla en máquina Smith", "sets": "3x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Sentadilla+en+maquina+Smith+ejercicio+tecnica"}, {"id": "c-l-3", "name": "Extensión de cuádriceps en máquina", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Extension+de+cuadriceps+en+maquina+ejercicio+tecnica"}, {"id": "c-l-4", "name": "Hip thrust en máquina Smith", "sets": "4x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Hip+thrust+en+maquina+Smith+ejercicio+tecnica"}, {"id": "c-l-5", "name": "Abductor en máquina", "sets": "3x15-20", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Abductor+en+maquina+ejercicio+tecnica"}, {"id": "c-l-6", "name": "Elevación de pantorrillas en máquina", "sets": "3x15-20", "rest": "45 seg", "video": "https://www.youtube.com/results?search_query=Elevacion+de+pantorrillas+en+maquina+ejercicio+tecnica"}, {"id": "c-l-7", "name": "Crunch en máquina (core)", "sets": "3x15-20", "rest": "45 seg", "video": "https://www.youtube.com/results?search_query=Crunch+en+maquina+(core)+ejercicio+tecnica"}]}]}, "martes": {"title": "Upper A — Push", "icon": "💪", "location": "SmartFit", "sections": [{"name": "Fuerza", "exercises": [{"id": "c-m-1", "name": "Press de pecho en máquina", "sets": "3x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Press+de+pecho+en+maquina+ejercicio+tecnica"}, {"id": "c-m-2", "name": "Press de hombro en máquina", "sets": "3x10-12", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Press+de+hombro+en+maquina+ejercicio+tecnica"}, {"id": "c-m-3", "name": "Aperturas en máquina pec fly", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Aperturas+en+maquina+pec+fly+ejercicio+tecnica"}, {"id": "c-m-4", "name": "Elevación lateral en máquina", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Elevacion+lateral+en+maquina+ejercicio+tecnica"}, {"id": "c-m-5", "name": "Extensión de tríceps en polea", "sets": "3x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Extension+de+triceps+en+polea+ejercicio+tecnica"}, {"id": "c-m-6", "name": "Press de tríceps en máquina", "sets": "2x12-15", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Press+de+triceps+en+maquina+ejercicio+tecnica"}, {"id": "c-m-7", "name": "Plancha en el suelo core", "sets": "3x30-45seg", "rest": "45 seg", "video": "https://www.youtube.com/results?search_query=Plancha+en+el+suelo+core+ejercicio+tecnica"}]}]}, "jueves": {"title": "Bicicleta 1 Hora", "icon": "🚴", "location": "Aire libre", "sections": [{"name": "Cardio", "exercises": [{"id": "c-j-1", "name": "Bicicleta con Anderson", "sets": "1 hora", "rest": "—", "video": "https://www.youtube.com/results?search_query=Bicicleta+con+Anderson+ejercicio+tecnica"}]}]}, "viernes": {"title": "Glúteo + Core + HIIT", "icon": "🔥", "location": "SmartFit", "sections": [{"name": "Circuito HIIT 30 seg", "exercises": [{"id": "c-v-1", "name": "Thrusters", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Thrusters+ejercicio+tecnica"}, {"id": "c-v-2", "name": "Sentadilla sumo con pulsaciones", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Sentadilla+sumo+con+pulsaciones+ejercicio+tecnica"}, {"id": "c-v-3", "name": "Butt Kicks", "sets": "30 seg c/lado", "rest": "—", "video": "https://www.youtube.com/results?search_query=Butt+Kicks+ejercicio+tecnica"}, {"id": "c-v-4", "name": "Encogimiento rodillas en banco", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Encogimiento+rodillas+en+banco+ejercicio+tecnica"}, {"id": "c-v-5", "name": "Plancha", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Plancha+ejercicio+tecnica"}, {"id": "c-v-6", "name": "Scissors", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Scissors+ejercicio+tecnica"}, {"id": "c-v-7", "name": "Crunch en máquina", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+en+maquina+ejercicio+tecnica"}, {"id": "c-v-8", "name": "Elevación piernas colgado", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Elevacion+piernas+colgado+ejercicio+tecnica"}, {"id": "c-v-9", "name": "Crunch lateral cuerda en polea", "sets": "30 seg c/lado", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+lateral+cuerda+en+polea+ejercicio+tecnica"}]}, {"name": "Bloque Glúteo", "exercises": [{"id": "c-v-10", "name": "Hip Thrust en Smith", "sets": "4x12-15", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Hip+Thrust+en+Smith+ejercicio+tecnica"}, {"id": "c-v-11", "name": "Abductor en máquina", "sets": "4x15-20", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Abductor+en+maquina+ejercicio+tecnica"}, {"id": "c-v-12", "name": "Prensa piernas pies muy arriba", "sets": "3x12-15", "rest": "90 seg", "video": "https://www.youtube.com/results?search_query=Prensa+piernas+pies+muy+arriba+ejercicio+tecnica"}, {"id": "c-v-13", "name": "Patada glúteo máquina kickback", "sets": "3x12-15 c/pierna", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Patada+gluteo+maquina+kickback+ejercicio+tecnica"}, {"id": "c-v-14", "name": "Aductor en máquina", "sets": "3x15-20", "rest": "60 seg", "video": "https://www.youtube.com/results?search_query=Aductor+en+maquina+ejercicio+tecnica"}]}, {"name": "Cardio", "exercises": [{"id": "c-v-15", "name": "Elíptica post-entreno", "sets": "20 min", "rest": "—", "video": "https://www.youtube.com/results?search_query=Eliptica+post-entreno+ejercicio+tecnica"}]}]}, "sabado": {"title": "HIIT & Core", "icon": "⚡", "location": "SmartFit", "sections": [{"name": "Circuito HIIT Core 30 seg", "exercises": [{"id": "c-s-1", "name": "Thrusters sentadilla press hombro", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Thrusters+sentadilla+press+hombro+ejercicio+tecnica"}, {"id": "c-s-2", "name": "Crunch lateral cuerda en polea", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+lateral+cuerda+en+polea+ejercicio+tecnica"}, {"id": "c-s-3", "name": "Sentadilla sumo con pulsaciones", "sets": "30 seg c/lado", "rest": "—", "video": "https://www.youtube.com/results?search_query=Sentadilla+sumo+con+pulsaciones+ejercicio+tecnica"}, {"id": "c-s-4", "name": "Encogimiento rodillas banco", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Encogimiento+rodillas+banco+ejercicio+tecnica"}, {"id": "c-s-5", "name": "Scissors", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Scissors+ejercicio+tecnica"}, {"id": "c-s-6", "name": "Plancha", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Plancha+ejercicio+tecnica"}, {"id": "c-s-7", "name": "Crunch en máquina", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Crunch+en+maquina+ejercicio+tecnica"}, {"id": "c-s-8", "name": "Russian Twists", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Russian+Twists+ejercicio+tecnica"}, {"id": "c-s-9", "name": "Hollow Hold", "sets": "30 seg", "rest": "—", "video": "https://www.youtube.com/results?search_query=Hollow+Hold+ejercicio+tecnica"}]}, {"name": "Cardio", "exercises": [{"id": "c-s-10", "name": "Cardio segun porcentaje grasa", "sets": "Según tabla", "rest": "—", "video": "https://www.youtube.com/results?search_query=Cardio+segun+porcentaje+grasa+ejercicio+tecnica"}]}]}};
+const DAY_LABELS = {lunes:"Lunes",martes:"Martes",miercoles:"Miércoles",jueves:"Jueves",viernes:"Viernes",sabado:"Sábado"};
+const WEEKS = ["Semana 1","Semana 2","Semana 3","Semana 4"];
+const PHOTO_SLOTS = ["Frente","Lateral Izq","Lateral Der","Espalda"];
+let currentWeek="Semana 1",currentDay=null,exerciseData={},openNote=null,openPhoto=null,pendingPhotoId=null,pendingSlot=null;
+
+function sKey(w,d){return `mm_carolina_${w}_${d}`}
+function pKey(w,slot){return `mm_carolina_photo_${w}_${slot}`}
+function loadPrefs(){try{const p=JSON.parse(localStorage.getItem("mm_prefs_carolina"));if(p&&p.week)currentWeek=p.week}catch{}}
+function savePrefs(){localStorage.setItem("mm_prefs_carolina",JSON.stringify({week:currentWeek}))}
+function loadEx(){if(!currentDay){exerciseData={};return}try{exerciseData=JSON.parse(localStorage.getItem(sKey(currentWeek,currentDay)))||{}}catch{exerciseData={}}}
+function saveEx(){if(!currentDay)return;localStorage.setItem(sKey(currentWeek,currentDay),JSON.stringify(exerciseData));showSaved()}
+function showSaved(){const el=document.getElementById("save-ind");if(el){el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1200)}}
+
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function goToDays(){currentDay=null;openNote=null;openPhoto=null;renderDays();showScreen("screen-days")}
+function goToNutrition(){showScreen("screen-nutrition")}
+function selectDay(d){currentDay=d;openNote=null;openPhoto=null;loadEx();renderWorkout();showScreen("screen-workout")}
+function selectWeek(w){currentWeek=w;savePrefs();if(currentDay){loadEx();renderWorkout()}renderDays()}
+
+function resizeImg(file,maxW,cb){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement("canvas");
+      let w=img.width,h=img.height;
+      if(w>maxW){h=h*(maxW/w);w=maxW}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      cb(canvas.toDataURL("image/jpeg",0.7));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Exercise photos
+function takeExPhoto(id){pendingPhotoId=id;document.getElementById("cam-ex").click()}
+function handleExPhoto(input){
+  if(!input.files[0]||!pendingPhotoId)return;
+  resizeImg(input.files[0],400,function(data){
+    if(!exerciseData[pendingPhotoId])exerciseData[pendingPhotoId]={};
+    exerciseData[pendingPhotoId].photo=data;
+    saveEx();renderWorkout();
+  });
+  input.value="";
+}
+function deleteExPhoto(id){
+  if(exerciseData[id])delete exerciseData[id].photo;
+  saveEx();renderWorkout();
+}
+
+// Progress photos
+function goToPhotos(){
+  document.getElementById("photo-week-label").textContent=currentWeek;
+  renderPhotos();showScreen("screen-photos");
+}
+function takeProgressPhoto(slot){pendingSlot=slot;document.getElementById("cam-progress").click()}
+function handleProgressPhoto(input){
+  if(!input.files[0]||pendingSlot===null)return;
+  resizeImg(input.files[0],600,function(data){
+    localStorage.setItem(pKey(currentWeek,pendingSlot),data);
+    renderPhotos();
+  });
+  input.value="";
+}
+function deleteProgressPhoto(slot){
+  if(!confirm("¿Borrar esta foto?"))return;
+  localStorage.removeItem(pKey(currentWeek,slot));
+  renderPhotos();
+}
+function openModal(src){document.getElementById("modal-img").src=src;document.getElementById("photo-modal").classList.add("active")}
+function closeModal(){document.getElementById("photo-modal").classList.remove("active")}
+
+function renderDays(){
+  document.getElementById("week-btns").innerHTML=WEEKS.map(w=>`<button class="week-btn ${w===currentWeek?'active':''}" onclick="selectWeek('${w}')">${w.replace('Semana ','Sem ')}</button>`).join('');
+  document.getElementById("day-list").innerHTML=Object.entries(ROUTINE).map(([k,d])=>`<div class="day-card" onclick="selectDay('${k}')"><div class="day-icon">${d.icon}</div><div style="flex:1"><div class="day-label">${DAY_LABELS[k]}</div><div class="day-title">${d.title}</div><div class="day-loc">📍 ${d.location}</div></div><div class="arrow">›</div></div>`).join('');
+}
+
+function renderWorkout(){
+  const day=ROUTINE[currentDay];if(!day)return;
+  document.getElementById("wk-label").textContent=currentWeek;
+  document.getElementById("wh-icon").textContent=day.icon;
+  document.getElementById("wh-day").textContent=DAY_LABELS[currentDay];
+  document.getElementById("wh-title").textContent=day.title;
+  const allEx=day.sections.flatMap(s=>s.exercises);
+  const done=allEx.filter(e=>exerciseData[e.id]?.done).length;
+  const total=allEx.length;const pct=total>0?(done/total)*100:0;const complete=pct===100;
+  document.getElementById("progress-fill").style.width=pct+"%";
+  document.getElementById("progress-fill").style.background=complete?"var(--green)":"var(--accent)";
+  document.getElementById("progress-text").textContent=`${done}/${total}`;
+  document.getElementById("progress-text").style.color=complete?"var(--green)":"var(--muted)";
+  let h='';
+  day.sections.forEach(sec=>{
+    h+=`<div class="section-title">${sec.name}</div>`;
+    sec.exercises.forEach(ex=>{
+      const d=exerciseData[ex.id]||{};const dn=!!d.done;const no=openNote===ex.id;const po=openPhoto===ex.id;
+      h+=`<div class="ex-card ${dn?'done':''}">
+        <div class="ex-main">
+          <button class="ex-check ${dn?'done':''}" onclick="toggleDone('${ex.id}')">${dn?'✓':''}</button>
+          <div style="flex:1;min-width:0">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-meta">
+              <span class="ex-sets">${ex.sets}</span>
+              <span class="ex-rest">⏱ ${ex.rest}</span>
+              <a href="${ex.video}" target="_blank" class="ex-video" onclick="event.stopPropagation()">▶ Video</a>
+            </div>
+          </div>
+        </div>
+        <div class="ex-inputs">
+          <div class="weight-wrap"><span>⚖️</span><input type="number" inputmode="decimal" placeholder="Peso (kg)" value="${d.weight||''}" onchange="setWeight('${ex.id}',this.value)"/></div>
+          <button class="photo-btn ${d.photo?'has':''}" onclick="${d.photo?`togglePhoto('${ex.id}')`:`takeExPhoto('${ex.id}')`}">📷</button>
+          <button class="note-btn ${d.note?'has':''}" onclick="toggleNote('${ex.id}')">📝</button>
+        </div>
+        ${po&&d.photo?`<div class="ex-photo-area"><img src="${d.photo}" onclick="openModal('${d.photo}')" /><div class="photo-actions"><button onclick="takeExPhoto('${ex.id}')">📷 Cambiar</button><button onclick="deleteExPhoto('${ex.id}')">🗑 Borrar</button></div></div>`:''}        ${no?`<div class="note-area"><textarea rows="2" placeholder="Notas..." onchange="setNote('${ex.id}',this.value)">${d.note||''}</textarea></div>`:''}
+      </div>`;
+    });
+  });
+  document.getElementById("exercise-list").innerHTML=h;
+  document.getElementById("bottom-bar").innerHTML=`${complete?'<div class="btn-done">✅ ¡Entrenamiento completado!</div>':''}<button class="btn-reset" onclick="resetDay()">🗑 Reiniciar día</button>`;
+}
+
+function renderPhotos(){
+  const grid=document.getElementById("photo-grid");
+  grid.innerHTML=PHOTO_SLOTS.map((slot,i)=>{
+    const data=localStorage.getItem(pKey(currentWeek,i));
+    if(data)return `<div class="photo-slot"><div class="slot-label">${slot}</div><img src="${data}" onclick="openModal('${data}')" /><button class="del-photo" onclick="deleteProgressPhoto(${i})">✕</button></div>`;
+    return `<div class="photo-slot"><div class="slot-label">${slot}</div><button class="add-photo" onclick="takeProgressPhoto(${i})">📷</button></div>`;
+  }).join('');
+}
+
+function toggleDone(id){if(!exerciseData[id])exerciseData[id]={};exerciseData[id].done=!exerciseData[id].done;saveEx();renderWorkout()}
+function setWeight(id,v){if(!exerciseData[id])exerciseData[id]={};exerciseData[id].weight=v;saveEx()}
+function setNote(id,v){if(!exerciseData[id])exerciseData[id]={};exerciseData[id].note=v;saveEx()}
+function toggleNote(id){openNote=openNote===id?null:id;openPhoto=null;renderWorkout()}
+function togglePhoto(id){openPhoto=openPhoto===id?null:id;openNote=null;renderWorkout()}
+function resetDay(){if(!confirm("¿Borrar todos los datos de este día?"))return;exerciseData={};localStorage.removeItem(sKey(currentWeek,currentDay));renderWorkout()}
+
+loadPrefs();renderDays();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
