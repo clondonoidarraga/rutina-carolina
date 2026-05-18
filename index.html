@@ -119,6 +119,15 @@ input[type="file"]{display:none}
       </div>
       <div class="arrow">›</div>
     </div>
+    <div class="photo-card" style="margin-top:10px;background:linear-gradient(135deg,#2a1a2a,#2e1e2e);border-color:#3a2a3a" onclick="goToNutrition()">
+      <div class="day-icon">🥗</div>
+      <div style="flex:1">
+        <div class="day-label">Guía Nutricional</div>
+        <div class="day-title">Plan vegetariano + quema calórica</div>
+        <div class="day-loc">Macros, menú, calorías por ejercicio</div>
+      </div>
+      <div class="arrow">›</div>
+    </div>
   </div>
 </div>
 
@@ -159,6 +168,272 @@ input[type="file"]{display:none}
   <div class="photo-grid" id="photo-grid"></div>
 </div>
 
+<div id="screen-nutrition" class="screen">
+  <div class="header-bar">
+    <button class="btn-back" onclick="goToDays()">← Inicio</button>
+    <div></div>
+  </div>
+  <div style="padding:0 20px 60px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:40px;margin-bottom:8px">🥗</div>
+      <h2 style="color:var(--accent);font-size:20px;margin-bottom:4px">Guía Nutricional Vegetariana</h2>
+      <p style="color:var(--muted);font-size:12px">Plan para mover la balanza — Déficit inteligente</p>
+      <p style="color:var(--dim);font-size:11px;margin-top:4px">67.5 kg • Vegetariana • 5 días/semana</p>
+    </div>
+
+    <!-- MACROS -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">📊 TUS MACROS DIARIOS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:var(--accent);font-size:22px;font-weight:800">1,750</div>
+          <div style="color:var(--muted);font-size:11px">kcal / día</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:#FF6B9D;font-size:22px;font-weight:800">130g</div>
+          <div style="color:var(--muted);font-size:11px">proteína</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:#FFD93D;font-size:22px;font-weight:800">185g</div>
+          <div style="color:var(--muted);font-size:11px">carbohidratos</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+          <div style="color:#6BCB77;font-size:22px;font-weight:800">50g</div>
+          <div style="color:var(--muted);font-size:11px">grasas</div>
+        </div>
+      </div>
+      <div style="color:var(--dim);font-size:11px;margin-top:10px;text-align:center">Déficit de ~400 kcal para perder ~0.5 kg/semana real en la balanza</div>
+    </div>
+
+    <!-- REGLA DE ORO -->
+    <div style="background:linear-gradient(135deg,#2a2a1a,#1e1e1a);border:1px solid #3a3a2a;border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:#FFD93D;font-size:13px;font-weight:700;margin-bottom:8px">⚡ PARA MOVER LA BALANZA</div>
+      <div style="color:var(--text);font-size:13px;line-height:1.6">La clave es el <strong>déficit calórico sostenido</strong>. Con 1,750 kcal + tu nivel de entrenamiento (5 días), quemas ~2,100-2,200 kcal diarias. Eso son ~400 kcal de déficit = <strong style="color:#FF6B9D">~0.5 kg por semana</strong>. En un mes puedes bajar 2 kg reales (grasa, no agua). Proteína a 130g para proteger tu músculo.</div>
+    </div>
+
+    <!-- MEJORES PROTEINAS VEGETARIANAS -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🥇 TUS MEJORES FUENTES DE PROTEÍNA</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🥛</span> <span style="color:var(--text);font-size:13px;font-weight:600">Whey Protein</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">25-30g / scoop</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🥚</span> <span style="color:var(--text);font-size:13px;font-weight:600">Huevos (3-4/día)</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">6g / unidad</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🥣</span> <span style="color:var(--text);font-size:13px;font-weight:600">Yogur griego</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">15-20g / vaso</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🫘</span> <span style="color:var(--text);font-size:13px;font-weight:600">Lentejas cocidas</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">18g / taza</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🧀</span> <span style="color:var(--text);font-size:13px;font-weight:600">Queso cottage</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">14g / 100g</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🫧</span> <span style="color:var(--text);font-size:13px;font-weight:600">Tofu firme</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">17g / 100g</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:8px;padding:10px 12px">
+          <div><span style="font-size:16px">🌾</span> <span style="color:var(--text);font-size:13px;font-weight:600">Quinoa cocida</span></div>
+          <div style="color:var(--accent);font-size:12px;font-weight:700">8g / taza</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EJEMPLO MENU -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🍽️ MENÚ DÍA DE ENTRENAMIENTO</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="border-left:3px solid #FFD93D;padding-left:12px">
+          <div style="color:#FFD93D;font-size:11px;font-weight:700">6:00 AM — PRE-GYM</div>
+          <div style="color:var(--text);font-size:13px">Banano + café negro</div>
+          <div style="color:var(--muted);font-size:11px">~100 kcal • energía rápida</div>
+        </div>
+        <div style="border-left:3px solid #FF6B9D;padding-left:12px">
+          <div style="color:#FF6B9D;font-size:11px;font-weight:700">8:00 AM — DESAYUNO POST-GYM</div>
+          <div style="color:var(--text);font-size:13px">3 huevos revueltos + arepa + batido whey con leche</div>
+          <div style="color:var(--muted);font-size:11px">~45g proteína • ~500 kcal</div>
+        </div>
+        <div style="border-left:3px solid #6BCB77;padding-left:12px">
+          <div style="color:#6BCB77;font-size:11px;font-weight:700">11:00 AM — MEDIA MAÑANA</div>
+          <div style="color:var(--text);font-size:13px">Yogur griego + puñado de nueces + fruta</div>
+          <div style="color:var(--muted);font-size:11px">~20g proteína • ~250 kcal</div>
+        </div>
+        <div style="border-left:3px solid var(--accent);padding-left:12px">
+          <div style="color:var(--accent);font-size:11px;font-weight:700">1:00 PM — ALMUERZO</div>
+          <div style="color:var(--text);font-size:13px">Lentejas + arroz integral + ensalada grande + medio aguacate</div>
+          <div style="color:var(--muted);font-size:11px">~30g proteína • ~500 kcal</div>
+        </div>
+        <div style="border-left:3px solid #C49BFF;padding-left:12px">
+          <div style="color:#C49BFF;font-size:11px;font-weight:700">4:00 PM — MERIENDA</div>
+          <div style="color:var(--text);font-size:13px">Tostadas integrales con queso cottage + tomate</div>
+          <div style="color:var(--muted);font-size:11px">~15g proteína • ~200 kcal</div>
+        </div>
+        <div style="border-left:3px solid #FF9A3C;padding-left:12px">
+          <div style="color:#FF9A3C;font-size:11px;font-weight:700">7:00 PM — CENA</div>
+          <div style="color:var(--text);font-size:13px">Tofu salteado con vegetales + quinoa</div>
+          <div style="color:var(--muted);font-size:11px">~22g proteína • ~300 kcal</div>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;margin-top:12px;text-align:center">
+        <span style="color:#FF6B9D;font-weight:700">~132g proteína</span> <span style="color:var(--dim)">•</span> <span style="color:var(--accent);font-weight:700">~1,750 kcal</span>
+      </div>
+    </div>
+
+    <!-- MENU DIA DESCANSO -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🍽️ MENÚ DÍA DE DESCANSO</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="border-left:3px solid #FFD93D;padding-left:12px">
+          <div style="color:#FFD93D;font-size:11px;font-weight:700">DESAYUNO</div>
+          <div style="color:var(--text);font-size:13px">Avena con leche + whey + fruta picada</div>
+          <div style="color:var(--muted);font-size:11px">~35g proteína • ~400 kcal</div>
+        </div>
+        <div style="border-left:3px solid #6BCB77;padding-left:12px">
+          <div style="color:#6BCB77;font-size:11px;font-weight:700">MEDIA MAÑANA</div>
+          <div style="color:var(--text);font-size:13px">2 huevos duros + fruta</div>
+          <div style="color:var(--muted);font-size:11px">~12g proteína • ~180 kcal</div>
+        </div>
+        <div style="border-left:3px solid var(--accent);padding-left:12px">
+          <div style="color:var(--accent);font-size:11px;font-weight:700">ALMUERZO</div>
+          <div style="color:var(--text);font-size:13px">Frijoles + arroz + ensalada + aguacate</div>
+          <div style="color:var(--muted);font-size:11px">~25g proteína • ~450 kcal</div>
+        </div>
+        <div style="border-left:3px solid #C49BFF;padding-left:12px">
+          <div style="color:#C49BFF;font-size:11px;font-weight:700">MERIENDA</div>
+          <div style="color:var(--text);font-size:13px">Yogur griego + granola</div>
+          <div style="color:var(--muted);font-size:11px">~18g proteína • ~220 kcal</div>
+        </div>
+        <div style="border-left:3px solid #FF9A3C;padding-left:12px">
+          <div style="color:#FF9A3C;font-size:11px;font-weight:700">CENA</div>
+          <div style="color:var(--text);font-size:13px">Tortilla de 3 huevos con champiñones y espinaca</div>
+          <div style="color:var(--muted);font-size:11px">~22g proteína • ~300 kcal</div>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;margin-top:12px;text-align:center">
+        <span style="color:#FF6B9D;font-weight:700">~112g proteína</span> <span style="color:var(--dim)">•</span> <span style="color:var(--accent);font-weight:700">~1,550 kcal</span>
+      </div>
+    </div>
+
+    <!-- CALORIAS POR DIA -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🔥 CALORÍAS QUE QUEMAS POR DÍA</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">🦵</span> <span style="color:var(--text);font-size:13px;font-weight:600">Lunes — Lower A</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~320 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Prensa ~45 • Smith ~40 • Ext cuád ~25 • Hip thrust ~45 • Abductor ~20 • Pantorrillas ~15 • Crunch ~15 • EPOC* ~115</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">💪</span> <span style="color:var(--text);font-size:13px;font-weight:600">Martes — Upper A</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~260 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Press pecho ~30 • Press hombro ~30 • Pec fly ~20 • Lateral ~15 • Tríceps ~20 • Plancha ~15 • EPOC* ~100</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">🚴</span> <span style="color:var(--text);font-size:13px;font-weight:600">Jueves — Bici 1h</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~400 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Ritmo moderado constante 1 hora. El cardio más largo de la semana.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">🔥</span> <span style="color:var(--text);font-size:13px;font-weight:600">Viernes — Glúteo + HIIT</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~520 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">HIIT circuit ~180 • Bloque glúteo ~160 • Elíptica 20min ~140 • EPOC* extra por HIIT</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:14px">⚡</span> <span style="color:var(--text);font-size:13px;font-weight:600">Sábado — HIIT & Core</span></div>
+            <div style="color:#FF6B9D;font-size:14px;font-weight:800">~380 kcal</div>
+          </div>
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">Circuito HIIT ~200 + Cardio según tabla ~180. Día más intenso en frecuencia cardíaca.</div>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#2a1a2a,#1e1e2e);border-radius:10px;padding:14px;margin-top:12px;text-align:center">
+        <div style="color:var(--accent);font-size:18px;font-weight:800">~1,880 kcal/semana</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:2px">Total quemado solo en ejercicio (sin contar metabolismo basal)</div>
+      </div>
+      <div style="color:var(--dim);font-size:10px;margin-top:8px">*EPOC = calorías extra que sigues quemando después de entrenar (efecto post-combustión). Dura 24-48h después de fuerza e HIIT.</div>
+    </div>
+
+    <!-- BALANCE SEMANAL -->
+    <div style="background:linear-gradient(135deg,#1a2a1a,#1e2e1e);border:1px solid #2a4a2a;border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--green);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">📉 TU BALANCE SEMANAL</div>
+      <div style="display:flex;flex-direction:column;gap:6px;color:var(--text);font-size:13px">
+        <div style="display:flex;justify-content:space-between"><span>Gasto basal (7 días)</span><span style="color:var(--green)">~9,800 kcal</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Gasto por ejercicio (5 días)</span><span style="color:var(--green)">~1,880 kcal</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Actividad diaria (NEAT)</span><span style="color:var(--green)">~1,400 kcal</span></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #2a4a2a;padding-top:6px"><span style="font-weight:700">Gasto total semanal</span><span style="color:var(--green);font-weight:700">~13,080 kcal</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Consumo (1,750 x 5 días + 1,550 x 2)</span><span style="color:#FF6B9D">~11,850 kcal</span></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #2a4a2a;padding-top:6px"><span style="font-weight:700">Déficit semanal</span><span style="color:var(--accent);font-weight:800">~1,230 kcal</span></div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;margin-top:10px;text-align:center">
+        <div style="color:var(--accent);font-size:16px;font-weight:800">≈ 0.35 kg de grasa por semana</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:2px">~1.4 kg por mes • ~4.2 kg en 3 meses</div>
+      </div>
+    </div>
+
+    <!-- QUE EVITAR -->
+    <div style="background:linear-gradient(135deg,#2a1a1a,#1e1414);border:1px solid #3a2a2a;border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:#FF6B6B;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">🚫 EVITAR O REDUCIR</div>
+      <div style="display:flex;flex-direction:column;gap:8px;color:var(--text);font-size:13px;line-height:1.5">
+        <div>🥤 <strong>Gaseosas y jugos</strong> — calorías líquidas que no sacian. Un jugo = 150 kcal que no sientes.</div>
+        <div>🍞 <strong>Pan blanco y panadería</strong> — harinas refinadas que disparan insulina. Integral siempre.</div>
+        <div>🍟 <strong>Fritos</strong> — los patacones, empanadas y buñuelos triplican las calorías.</div>
+        <div>🍫 <strong>Snacks de paquete</strong> — papas, galletas, chocolates. Densidad calórica altísima.</div>
+        <div>🧈 <strong>Exceso de queso y mantequilla</strong> — el queso es proteína pero también mucha grasa. Preferir cottage o ricotta.</div>
+        <div>🍺 <strong>Alcohol</strong> — detiene la quema de grasa por completo mientras lo procesa tu cuerpo.</div>
+        <div>🍚 <strong>Porciones enormes de arroz</strong> — 1 taza cocida es suficiente. El arroz no es malo, la porción sí.</div>
+      </div>
+    </div>
+
+    <!-- TIPS -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">💡 TIPS PARA MOVER LA BALANZA</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Pesarte siempre igual</div><div style="color:var(--muted);font-size:12px">En ayunas, después de ir al baño, sin ropa. Mismo día cada semana (ej: lunes). NO diario — el peso fluctúa 1-2 kg por agua y digestión.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Whey es tu mejor aliado</div><div style="color:var(--muted);font-size:12px">2 scoops al día: uno post-gym y otro en merienda. Son 50-60g de proteína resueltos con pocas calorías (~240 kcal). Sin whey es muy difícil llegar a 130g siendo vegetariana.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Comer más los días de entreno</div><div style="color:var(--muted);font-size:12px">1,750 kcal días de gym, 1,550 kcal días de descanso. El cuerpo necesita combustible para rendir y recuperarse.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Vegetales = volumen gratis</div><div style="color:var(--muted);font-size:12px">Un plato enorme de ensalada con brócoli, espinaca, tomate y pepino tiene ~50 kcal. Te llena sin sumar. Agrégalos a todo.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="background:var(--accent);color:#000;font-weight:800;font-size:14px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div>
+          <div><div style="color:var(--text);font-size:13px;font-weight:600">Agua antes de cada comida</div><div style="color:var(--muted);font-size:12px">Un vaso grande 20 min antes de comer. Reduce el hambre y mejora la digestión. Mínimo 2.5L al día.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div style="background:linear-gradient(135deg,#2a1a2a,#2e1e2e);border:1px solid #3a2a3a;border-radius:14px;padding:16px;text-align:center">
+      <div style="color:var(--accent);font-size:13px;font-weight:700;margin-bottom:6px">📅 QUÉ ESPERAR EN LA BALANZA</div>
+      <div style="color:var(--text);font-size:13px;line-height:1.6">Semana 1-2: puedes bajar 1-2 kg rápido (agua + desinflamación). Semana 3-4: ~0.3-0.5 kg/semana real. Mes 2-3: la ropa cambia de talla. <strong>Si una semana no baja, NO te asustes</strong> — el ciclo menstrual puede causar retención de 1-2 kg de agua que desaparecen después. Confía en el promedio mensual, no en el número diario.</div>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="photo-modal" onclick="closeModal()">
   <button class="close" onclick="closeModal()">✕</button>
   <img id="modal-img" src="" />
@@ -184,6 +459,7 @@ function showSaved(){const el=document.getElementById("save-ind");if(el){el.clas
 
 function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function goToDays(){currentDay=null;openNote=null;openPhoto=null;renderDays();showScreen("screen-days")}
+function goToNutrition(){showScreen("screen-nutrition")}
 function selectDay(d){currentDay=d;openNote=null;openPhoto=null;loadEx();renderWorkout();showScreen("screen-workout")}
 function selectWeek(w){currentWeek=w;savePrefs();if(currentDay){loadEx();renderWorkout()}renderDays()}
 
