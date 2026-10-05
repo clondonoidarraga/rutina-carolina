@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monk Mode · Cargas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MONK MODE · REGISTRO DE CARGAS
+   Programa: Sexy Legs (L-X-V) + Sexy Upper Body (M-J-S)
+   Nivel: Intermedio (SS1 + SS2, 4 rondas, 12-15 reps)
+   Regla de oro: el peso progresa, no los ejercicios.
+   ============================================================ */
+:root{
+  --negro:#0d0d0b; --carbon:#191916; --linea:#2c2c27;
+  --amarillo:#e8e337; --hueso:#f2f0e6; --gris:#8f8d82;
+  --ss2:#9ad0f5; /* azul suave para distinguir la súper serie 2 */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--negro);color:var(--hueso);font-family:'Archivo',system-ui,sans-serif;padding:16px 16px 90px;max-width:560px;margin:0 auto}
+
+/* --- Marca --- */
+.marca{font-weight:900;font-stretch:125%;text-transform:uppercase;font-size:1.6rem;line-height:.9;margin-bottom:2px}
+.marca span{color:var(--amarillo)}
+.sub{font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gris);margin-bottom:16px}
+
+/* --- Selectores de semana y día --- */
+.fila{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.chip{flex:1;min-width:40px;background:var(--carbon);border:1px solid var(--linea);border-radius:9px;color:var(--gris);font:inherit;font-weight:700;padding:10px 0;text-align:center;cursor:pointer;font-size:.85rem}
+.chip.on{background:var(--amarillo);color:var(--negro);border-color:var(--amarillo)}
+
+/* --- Encabezado del día --- */
+.dia-titulo{font-weight:900;font-stretch:120%;text-transform:uppercase;font-size:1.7rem;margin:14px 0 2px}
+.dia-grupo{color:var(--gris);font-size:.82rem;margin-bottom:4px}
+.parametros{background:var(--carbon);border:1px solid var(--linea);border-radius:10px;padding:10px 12px;font-size:.78rem;color:var(--gris);margin:10px 0 16px;line-height:1.5}
+.parametros b{color:var(--amarillo)}
+.nota{background:#1f1f10;border:1px solid #4a4a1e;border-radius:10px;padding:10px 12px;font-size:.78rem;color:#d8d48a;margin-bottom:14px}
+
+/* --- Tarjeta de ejercicio --- */
+.ej{background:var(--carbon);border:1px solid var(--linea);border-radius:12px;padding:12px;margin-bottom:10px}
+.ej .top{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.badge{font-size:.6rem;font-weight:800;letter-spacing:.08em;padding:3px 7px;border-radius:5px;background:var(--amarillo);color:var(--negro);white-space:nowrap}
+.badge.b2{background:var(--ss2)}
+.ej .nombre{font-weight:700;font-size:.95rem;line-height:1.25;flex:1}
+.ej .ultimo{font-size:.72rem;color:var(--gris);margin-bottom:8px}
+.ej .ultimo b{color:var(--hueso)}
+.sube{color:var(--amarillo);font-weight:700}
+
+/* --- Controles de peso y rondas --- */
+.controles{display:flex;gap:8px;align-items:center}
+.peso-caja{display:flex;align-items:center;background:var(--negro);border:1px solid var(--linea);border-radius:9px;overflow:hidden}
+.peso-caja button{background:none;border:0;color:var(--amarillo);font-size:1.2rem;font-weight:800;width:38px;height:40px;cursor:pointer}
+.peso-caja input{width:58px;background:none;border:0;color:var(--hueso);font:inherit;font-weight:800;font-size:1rem;text-align:center}
+.peso-caja .u{color:var(--gris);font-size:.7rem;padding-right:8px}
+.rondas{display:flex;gap:4px;flex:1;justify-content:flex-end}
+.r{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--linea);background:none;color:var(--gris);font:inherit;font-size:.72rem;font-weight:700;cursor:pointer}
+.r.on{background:var(--amarillo);border-color:var(--amarillo);color:var(--negro)}
+
+/* --- Barra inferior fija --- */
+.barra{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,11,.97);border-top:1px solid var(--linea);padding:10px 16px;display:flex;gap:8px;max-width:560px;margin:0 auto}
+.btn{flex:1;border:0;border-radius:10px;font:inherit;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:.8rem;padding:13px;cursor:pointer}
+.btn.p{background:var(--amarillo);color:var(--negro)}
+.btn.s{background:var(--carbon);color:var(--gris);border:1px solid var(--linea)}
+
+/* --- Temporizador de descanso --- */
+#timer{position:fixed;top:12px;right:12px;background:var(--amarillo);color:var(--negro);font-weight:900;font-size:1rem;padding:8px 14px;border-radius:999px;display:none;z-index:5}
+
+/* --- Historial --- */
+.hist-item{border-bottom:1px solid var(--linea);padding:9px 2px;font-size:.84rem;display:flex;justify-content:space-between;gap:8px}
+.hist-item .f{color:var(--gris);font-size:.72rem;white-space:nowrap}
+.vacio{color:var(--gris);text-align:center;padding:30px 10px;font-size:.85rem}
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(--amarillo);color:var(--negro);font-weight:800;font-size:.8rem;padding:10px 18px;border-radius:999px;display:none;z-index:6}
+.oculto{display:none}
+h3.secc{font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gris);margin:18px 0 8px}
+</style>
+</head>
+<body>
+
+<h1 class="marca"><span>Monk</span> Mode</h1>
+<p class="sub">Registro de cargas · Nivel intermedio</p>
+
+<!-- Selector de semana (1-4 del programa, cicla al terminar) -->
+<div class="fila" id="semanas"></div>
+<!-- Selector de día -->
+<div class="fila" id="dias"></div>
+
+<!-- Pantalla principal: rutina del día -->
+<div id="pantalla-dia"></div>
+
+<!-- Pantalla de historial -->
+<div id="pantalla-hist" class="oculto"></div>
+
+<div id="timer"></div>
+<div class="toast" id="toast"></div>
+
+<div class="barra">
+  <button class="btn p" id="btn-guardar">Guardar sesión</button>
+  <button class="btn s" id="btn-timer">⏱ 1:30</button>
+  <button class="btn s" id="btn-hist">Historial</button>
+</div>
+
+<script>
+/* ============================================================
+   1. CATÁLOGO DE EJERCICIOS
+   Cada ejercicio tiene un ID único y estable. Si un ejercicio se
+   repite en otra semana, usa el MISMO ID: así tu historial de
+   cargas lo sigue a través de las semanas (y así migrará limpio
+   a la tabla `ejercicios` de MySQL en la Fase 2 de la app).
+   Prefijos: p = pierna (Sexy Legs) · t = tren superior · c = core
+   iso:1 = ejercicio de isometría (30 seg en intermedio, no reps)
+   ============================================================ */
+const CAT = {
+ // --- SEXY LEGS ---
+ p01:{n:'Sentadilla libre'}, p02:{n:'Prensa pies a la altura de hombros'}, p03:{n:'Extensión de cuádriceps'},
+ p04:{n:'Prensa horizontal'}, p05:{n:'Búlgara (enfoque cuádriceps)'}, p06:{n:'Prensa horizontal 1 pierna'},
+ p07:{n:'Extensión de cuádriceps 1 pierna'}, p08:{n:'Sentadilla frontal'}, p09:{n:'Curl femoral sentado'},
+ p10:{n:'Prensa pies abiertos'}, p11:{n:'Puentes'}, p12:{n:'Curl femoral acostado'},
+ p13:{n:'Abductores en máquina'}, p14:{n:'Peso muerto'}, p15:{n:'Curl femoral 1 pierna parado'},
+ p16:{n:'Prensa pies arriba'}, p17:{n:'Patada de glúteo en polea pierna flexionada'}, p18:{n:'Sentadilla sumo'},
+ p19:{n:'Escalón con mancuernas'}, p20:{n:'Sentadilla hack pies abiertos'}, p21:{n:'Desplantes fijos en Smith'},
+ p22:{n:'Sentadilla goblet'}, p23:{n:'Hiperextensión para glúteos'}, p24:{n:'Aductor en máquina'},
+ p25:{n:'Desplantes cortitos caminando'}, p26:{n:'Aducción en polea unilateral'}, p27:{n:'Sentadilla profunda en Smith'},
+ p28:{n:'Sentadilla + desplante en Smith'}, p29:{n:'Patada de glúteo en polea sobre rodillas'}, p30:{n:'Búlgara (enfoque glúteos)'},
+ p31:{n:'Curl femoral acostado 1 pierna'}, p32:{n:'Abducción en polea pierna doblada'}, p33:{n:'Extensión de cadera en polea'},
+ p34:{n:'Puentes 1 pierna'}, p35:{n:'Frog pump invertido en Smith'}, p36:{n:'Media flexión de cadera en Smith'},
+ p37:{n:'Sentadilla en 3 tiempos'}, p38:{n:'Jefferson squat'}, p39:{n:'Swings en squat'},
+ p40:{n:'Desplantes con rebote caminando'}, p41:{n:'Sentadilla perfecta piernas cerradas'}, p42:{n:'Extensión de gemelos sentado'},
+ p43:{n:'Elevación de gemelos parado'}, p44:{n:'Isometría en desplante',iso:1}, p45:{n:'Sentadilla goblet en polea'},
+ p46:{n:'Isometría en sentadilla con rebotes',iso:1}, p47:{n:'Puentes sobre el suelo'}, p48:{n:'Desplante de princesa'},
+ p49:{n:'Peso muerto piernas abiertas'}, p50:{n:'Frog pump'}, p51:{n:'Abducciones completas + isometría',iso:1},
+ p52:{n:'Abducción en plancha lateral con disco'}, p53:{n:'Curl femoral en polea parado'}, p54:{n:'Extensión de femorales'},
+ p55:{n:'Desplantes caminando elevando rodillas'}, p56:{n:'Extensión de cuádriceps + isometría',iso:1}, p57:{n:'Peso muerto + sentadilla'},
+ p58:{n:'Búlgara en Smith'}, p59:{n:'Sentadilla sisi'}, p60:{n:'Extensión de cuádriceps en polea unilateral'},
+ p61:{n:'Desplantes caminando + sentadilla'}, p62:{n:'Sentadilla deslizando disco'}, p63:{n:'Desplante lateral pierna en banco'},
+ p64:{n:'Búlgara + peso muerto unilateral'}, p65:{n:'Sumo profunda con steps'}, p66:{n:'Abducción con polea en sentadilla'},
+ p67:{n:'Curl femoral en banco con polea'}, p68:{n:'Patada de glúteo en máquina'}, p69:{n:'Desplante en Smith con escalón'},
+ p70:{n:'Prensa abierta + prensa cerrada'}, p71:{n:'Desplante con patada trasera en Smith'}, p72:{n:'Sentadilla 2 tiempos'},
+ p73:{n:'Desplante normal + cruzado en Smith'}, p74:{n:'Sentadilla goblet elevando piernas'}, p75:{n:'Sentadilla con mancuernas a los lados'},
+ // --- SEXY UPPER BODY ---
+ t02:{n:'Extensión con barra en polea'}, t03:{n:'Curl con barra en polea'}, t04:{n:'Extensión con cuerda en polea'},
+ t05:{n:'Curl 21 con barra'}, t06:{n:'Extensión isolateral con cuerda'}, t07:{n:'Curl agarre prono con barra'},
+ t08:{n:'Extensión isolateral cruzado en polea'}, t09:{n:'Remo agarre supino en Smith'}, t10:{n:'Elevación lateral isolateral en polea'},
+ t11:{n:'Remo agarre prono en Smith'}, t12:{n:'Elevación frontal en polea'}, t13:{n:'Peso muerto en Smith'},
+ t14:{n:'Elevación frontal isolateral en polea'}, t15:{n:'Peso muerto + remo en Smith'}, t16:{n:'Remo vertical en polea'},
+ t19:{n:'Curl de bíceps isolateral'}, t20:{n:'Patada de tríceps isolateral en polea'}, t21:{n:'Changuitos con barra en polea'},
+ t22:{n:'Extensión de tríceps brazo horizontal'}, t23:{n:'Curl isolateral en polea alta'}, t24:{n:'Press francés'},
+ t25:{n:'Remo agarre prono en polea con barra'}, t26:{n:'Remo horizontal isolateral en polea'}, t27:{n:'Remo agarre neutro (V) en polea'},
+ t28:{n:'Elevación posterior en polea'}, t29:{n:'Pull over'}, t30:{n:'Press militar en máquina'},
+ t31:{n:'Remo agarre supino isolateral'}, t32:{n:'Press militar agarre neutro'}, t35:{n:'Curl banco declinado con barra'},
+ t36:{n:'Copa 2 manos'}, t37:{n:'Martillos banco declinado con cuerda'}, t38:{n:'Copa 1 mano'},
+ t18:{n:'Extensión de tríceps tras nuca en polea'},
+ t39:{n:'Spiderman con barra'}, t40:{n:'Fondos en banco'}, t41:{n:'Jalón inclinado sentado agarre neutro'},
+ t42:{n:'Press militar en Smith'}, t43:{n:'Remo 45° en polea con cuerda'}, t44:{n:'Remo vertical en Smith'},
+ t45:{n:'Jalón frontal con barra'}, t46:{n:'Elevación frontal con disco'}, t47:{n:'Jalón tras nuca'},
+ t48:{n:'Pec fly posterior'}, t50:{n:'Curl de bíceps alternado'}, t51:{n:'Martillos'},
+ t52:{n:'Martillos alternados'}, t53:{n:'Jalón frontal isolateral'}, t54:{n:'Press de Arnold con mancuernas'},
+ t55:{n:'Hiperextensión'}, t56:{n:'Remo horizontal'}, t57:{n:'Remo vertical con mancuerna'},
+ t58:{n:'Remo horizontal isolateral'}, t59:{n:'Posterior con mancuernas'},
+ t90:{n:'Jalón al pecho'}, t91:{n:'Elevaciones laterales con mancuerna'},
+ // --- SÁBADO CORE (sin carga: solo marcas rondas) ---
+ c01:{n:'Saltos en sentadilla',bw:1}, c02:{n:'Mountain climbers',bw:1}, c03:{n:'Desplante fijo con salto',bw:1},
+ c04:{n:'Mountain climbers cruzados',bw:1}, c05:{n:'Medio burpee con toques en talones',bw:1}, c06:{n:'Plancha invertida con elevación de piernas',bw:1},
+ c07:{n:'Sentadilla estrellita',bw:1}, c08:{n:'Crunch lado a lado',bw:1}, c09:{n:'Planchas tocando hombros',bw:1},
+ c10:{n:'Kick back',bw:1}, c11:{n:'Mountain climbers zancada completa',bw:1}, c12:{n:'Jumping jacks',bw:1},
+ c13:{n:'Planchas con aperturas',bw:1}, c14:{n:'Planchas con elevación de brazos',bw:1}, c15:{n:'Desplante lateral con toque',bw:1},
+ c16:{n:'Movimientos de oblicuos',bw:1}, c17:{n:'Burpees',bw:1}, c18:{n:'Plancha lateral con toque',bw:1},
+ c19:{n:'Saltos de sentadilla con retroceso',bw:1}, c20:{n:'Bicicletas',bw:1}, c21:{n:'Salto en sentadilla + desplante trasero',bw:1},
+ c22:{n:'Encogimientos laterales codo-rodilla',bw:1}, c23:{n:'Saltos pequeños en rebote de sentadilla',bw:1}, c24:{n:'Plancha alta con toques al hombro',bw:1},
+ c25:{n:'Sentadilla toque cruzado sin impacto',bw:1}, c26:{n:'Toques en rodillas en cuadrupedia',bw:1}, c27:{n:'Desplante con rodillazo',bw:1},
+ c28:{n:'Elevación unilateral de pierna acostado',bw:1}, c29:{n:'Salto con boxeo',bw:1}, c30:{n:'Crunch piernas flexionadas',bw:1},
+ c31:{n:'Burpee + sentadilla + boxeo',bw:1}
+};
+
+/* ============================================================
+   2. PLAN SEMANAL — nivel intermedio = SS1 + SS2 (×4 rondas).
+   El martes trae el AJUSTE V-TAPER: t90 y t91 reemplazan los dos
+   primeros ejercicios de brazo aislado de cada semana.
+   ============================================================ */
+const PLAN = {
+ 1:{ L:{g:'Cuádriceps · aductores · glúteos',ss1:['p01','p02','p03','p04'],ss2:['p05','p06','p07','p08']},
+     M:{g:'V-taper + brazos',vt:1,ss1:['t90','t91','t03','t04'],ss2:['t05','t06','t07','t08']},
+     X:{g:'Femorales · abductores · glúteos',ss1:['p09','p10','p11','p12'],ss2:['p13','p14','p15','p16']},
+     J:{g:'Espalda y hombro',ss1:['t09','t10','t11','t12'],ss2:['t13','t14','t15','t16']},
+     V:{g:'Pierna completa + pantorrillas',ss1:['p17','p18','p19','p20'],ss2:['p21','p22','p23','p11']},
+     S:{g:'Core + cardio (casa)',ss1:['c01','c02','c03','c04'],ss2:['c05','c06','c07','c08']} },
+ 2:{ L:{g:'Cuádriceps · aductores · glúteos',ss1:['p24','p25','p26','p27'],ss2:['p28','p29','p30','p11']},
+     M:{g:'V-taper + brazos',vt:1,ss1:['t90','t91','t19','t20'],ss2:['t21','t22','t23','t24']},
+     X:{g:'Femorales · abductores · glúteos',ss1:['p31','p32','p33','p34'],ss2:['p35','p36','p14','p09']},
+     J:{g:'Espalda y hombro',ss1:['t25','t26','t27','t28'],ss2:['t29','t30','t31','t32']},
+     V:{g:'Pierna completa + pantorrillas',ss1:['p37','p38','p39','p40'],ss2:['p41','p05','p42','p43']},
+     S:{g:'Core + cardio (casa)',ss1:['c09','c10','c11','c12'],ss2:['c13','c07','c14','c15']} },
+ 3:{ L:{g:'Cuádriceps · aductores · glúteos',ss1:['p08','p44','p45','p24'],ss2:['p46','p47','p48','p07']},
+     M:{g:'V-taper + brazos',vt:1,ss1:['t90','t91','t35','t36'],ss2:['t37','t38','t39','t40']},
+     X:{g:'Femorales · abductores · glúteos',ss1:['p49','p12','p50','p51'],ss2:['p52','p11','p53','p54']},
+     J:{g:'Espalda y hombro',ss1:['t41','t42','t43','t44'],ss2:['t45','t46','t47','t48']},
+     V:{g:'Pierna completa + pantorrillas',ss1:['p55','p01','p56','p57'],ss2:['p58','p06','p59','p60']},
+     S:{g:'Core + cardio (casa)',ss1:['c16','c17','c18','c19'],ss2:['c20','c21','c22','c23']} },
+ 4:{ L:{g:'Cuádriceps · aductores · glúteos',ss1:['p01','p03','p61','p62'],ss2:['p63','p64','p08','p65']},
+     M:{g:'V-taper + brazos',vt:1,ss1:['t90','t91','t50','t08'],ss2:['t51','t18','t52','t24']},
+     X:{g:'Femorales · abductores · glúteos',ss1:['p66','p11','p67','p14'],ss2:['p68','p69','p24','p27']},
+     J:{g:'Espalda y hombro',ss1:['t53','t54','t55','t44'],ss2:['t56','t57','t58','t59']},
+     V:{g:'Pierna completa + pantorrillas',ss1:['p70','p71','p72','p73'],ss2:['p74','p75','p03','p04']},
+     S:{g:'Core + cardio (casa)',ss1:['c24','c25','c26','c27'],ss2:['c28','c29','c30','c31']} }
+};
+const DIAS = ['L','M','X','J','V','S'];
+const NOMBRE_DIA = {L:'Lunes',M:'Martes',X:'Miércoles',J:'Jueves',V:'Viernes',S:'Sábado'};
+
+/* ============================================================
+   3. ESTADO Y ALMACENAMIENTO
+   registros = [{f:'2026-10-06', e:'p01', kg:25, r:4}]
+   Clave por ID de ejercicio → el historial sobrevive al cambio
+   de semana y será el JSON que importemos a MySQL.
+   ============================================================ */
+const K = 'mm_cargas_v1';
+let registros = JSON.parse(localStorage.getItem(K) || '[]');
+let semana = +(localStorage.getItem('mm_semana') || 1);
+// Día por defecto: el de hoy (domingo cae en lunes para planear)
+let dia = DIAS[Math.min(Math.max(new Date().getDay()-1,0),5)] || 'L';
+const $ = id => document.getElementById(id);
+const hoy = () => new Date().toISOString().slice(0,10);
+
+// Último registro de un ejercicio (el más reciente por fecha de inserción)
+const ultimo = e => { for (let i=registros.length-1;i>=0;i--) if (registros[i].e===e) return registros[i]; return null; };
+
+function guardarLS(){ localStorage.setItem(K, JSON.stringify(registros)); localStorage.setItem('mm_semana', semana); }
+
+/* ============================================================
+   4. RENDER
+   ============================================================ */
+function render(){
+  // Chips de semana
+  $('semanas').innerHTML = [1,2,3,4].map(s =>
+    `<button class="chip ${s===semana?'on':''}" onclick="setSemana(${s})">Sem ${s}</button>`).join('');
+  // Chips de día
+  $('dias').innerHTML = DIAS.map(d =>
+    `<button class="chip ${d===dia?'on':''}" onclick="setDia('${d}')">${d}</button>`).join('');
+
+  const plan = PLAN[semana][dia];
+  const esSabado = dia==='S';
+  let html = `<h2 class="dia-titulo">${NOMBRE_DIA[dia]}</h2>
+    <p class="dia-grupo">${plan.g} · Semana ${semana}</p>
+    <div class="parametros">${esSabado
+      ? '<b>Core en circuito:</b> SS1 + SS2 · 4 rondas · 30-40 seg por ejercicio · descanso 1 min entre rondas. Sin cargas: marca las rondas.'
+      : '<b>Intermedio:</b> SS1 + SS2 · <b>4 rondas</b> cada una · <b>12-15 reps</b> (isometrías: 30 seg) · descanso <b>1:30</b>. Cierra con <b>20 min caminadora incl. 15%</b>.'}
+    </div>`;
+  if (plan.vt) html += `<div class="nota">Ajuste V-taper activo: jalón + laterales reemplazan los 2 primeros ejercicios de brazo del PDF.</div>`;
+
+  // Tarjetas: SS1 y luego SS2
+  [['ss1','SS1',''],['ss2','SS2','b2']].forEach(([clave,etq,cls])=>{
+    plan[clave].forEach(id=>{
+      const e = CAT[id], u = ultimo(id);
+      // Sugerencia de progresión: completó 4 rondas la última vez → subir carga
+      const salto = id[0]==='p' ? 2.5 : 1;          // pierna sube más que superior
+      const pista = (u && u.r>=4 && u.kg>0) ? ` · <span class="sube">▲ sube a ${(u.kg+salto).toFixed(1)} kg</span>` : '';
+      html += `<div class="ej" data-id="${id}">
+        <div class="top"><span class="badge ${cls}">${etq}</span>
+          <span class="nombre">${e.n}${e.iso?' · <small>⏱ 30 s</small>':''}</span></div>
+        <div class="ultimo">${u ? `Última vez: <b>${e.bw?'✓':u.kg+' kg'}</b> · ${u.r} rondas (${u.f})${e.bw?'':pista}` : 'Primera vez: empieza con un peso que te rete a la rep 12'}</div>
+        <div class="controles">
+          ${e.bw ? '' : `<div class="peso-caja">
+            <button onclick="ajustaPeso('${id}',-${salto})">−</button>
+            <input type="number" step="0.5" min="0" id="kg-${id}" value="${u?u.kg:''}" placeholder="kg">
+            <button onclick="ajustaPeso('${id}',${salto})">+</button><span class="u">kg</span></div>`}
+          <div class="rondas" id="r-${id}">${[1,2,3,4].map(n=>
+            `<button class="r" onclick="setRondas('${id}',${n})">${n}</button>`).join('')}</div>
+        </div></div>`;
+    });
+  });
+  $('pantalla-dia').innerHTML = html;
+}
+
+/* --- Interacciones --- */
+window.setSemana = s => { semana=s; guardarLS(); render(); };
+window.setDia = d => { dia=d; render(); };
+window.ajustaPeso = (id,delta) => {
+  const inp = $('kg-'+id);
+  inp.value = Math.max(0,(parseFloat(inp.value)||0)+delta).toFixed(1).replace(/\.0$/,'');
+};
+window.setRondas = (id,n) => {   // pinta las rondas 1..n como completadas
+  [...$('r-'+id).children].forEach((b,i)=>b.classList.toggle('on', i<n));
+  $('r-'+id).dataset.v = n;
+};
+
+// Guardar sesión: toma cada tarjeta con rondas marcadas y crea su registro del día
+$('btn-guardar').onclick = () => {
+  let guardados = 0;
+  document.querySelectorAll('.ej').forEach(card=>{
+    const id = card.dataset.id;
+    const r = +($('r-'+id).dataset.v || 0);
+    if (!r) return;                               // sin rondas marcadas = no se entrenó
+    const kg = CAT[id].bw ? 0 : parseFloat(($('kg-'+id)||{}).value) || 0;
+    // Si ya hay registro de HOY para este ejercicio, se actualiza (no duplica)
+    const i = registros.findIndex(x=>x.e===id && x.f===hoy());
+    const reg = {f:hoy(), e:id, kg, r, s:semana, d:dia};
+    if (i>=0) registros[i]=reg; else registros.push(reg);
+    guardados++;
+  });
+  guardarLS();
+  toast(guardados ? `${guardados} ejercicios guardados ✓` : 'Marca las rondas primero');
+  render();                                       // refresca "última vez" y sugerencias
+};
+
+/* --- Temporizador de descanso (1:30) --- */
+let tInt = null;
+$('btn-timer').onclick = () => {
+  clearInterval(tInt);
+  let s = 90; const t = $('timer'); t.style.display='block';
+  const pinta = () => t.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  pinta();
+  tInt = setInterval(()=>{ s--; pinta();
+    if (s<=0){ clearInterval(tInt); t.textContent='¡VAMOS!'; navigator.vibrate && navigator.vibrate([200,100,200]);
+      setTimeout(()=>t.style.display='none',2500); } },1000);
+};
+
+/* --- Historial + exportación JSON (insumo de la migración a MySQL) --- */
+$('btn-hist').onclick = () => {
+  const ph = $('pantalla-hist'), pd = $('pantalla-dia');
+  if (!ph.classList.contains('oculto')){ ph.classList.add('oculto'); pd.classList.remove('oculto'); $('btn-hist').textContent='Historial'; return; }
+  let html = `<h2 class="dia-titulo">Historial</h2>
+    <p class="dia-grupo">${registros.length} registros</p>
+    <button class="btn s" style="width:100%;margin:10px 0" onclick="exportar()">⬇ Exportar JSON (respaldo / migración)</button>`;
+  if (!registros.length) html += `<p class="vacio">Aún no hay registros. Tu primera sesión los creará.</p>`;
+  else [...registros].reverse().slice(0,120).forEach(r=>{
+    html += `<div class="hist-item"><span>${CAT[r.e]?.n||r.e}</span>
+      <span><b>${r.kg?r.kg+' kg':'✓'}</b> · ${r.r}R <span class="f">${r.f}</span></span></div>`;
+  });
+  ph.innerHTML = html; ph.classList.remove('oculto'); pd.classList.add('oculto');
+  $('btn-hist').textContent='Volver';
+};
+window.exportar = () => {
+  const blob = new Blob([JSON.stringify({exportado:hoy(), registros},null,1)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `monkmode-cargas-${hoy()}.json`; a.click();
+};
+
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',2200); }
+
+render();
+</script>
+</body>
+</html>
